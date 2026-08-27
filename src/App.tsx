@@ -1,34 +1,171 @@
-import { useEffect, useRef, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
 import { FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
+import { AnimatePresence, motion, type MotionValue, useScroll, useTransform } from "framer-motion";
 import avatar from "../images/dasha-avatar.jpg";
 import roam from "../images/ROAM—TravelMagazineDesign/preview/1.png";
 import drop from "../images/DROP—NewspaperDesign/preview/1.png";
 import solar from "../images/SOLAR ADVENTURES/preview/1.png";
 import corporate from "../images/CorporatePrint&DigitalDesign/preview/1.png";
 import avatarCat from "../images/котики на фон/hero-cat-on-avatar.png";
+import theatre from "../images/ТЕАТРАЛЬНАЯ ПЬЕСА/1.png";
+import solarCaseOne from "../images/SOLAR ADVENTURES/1.png";
+import solarCaseTwo from "../images/SOLAR ADVENTURES/2.png";
+import theatreCase from "../images/ТЕАТРАЛЬНАЯ ПЬЕСА/1.png";
+import roamCaseOne from "../images/ROAM—TravelMagazineDesign/1.png";
+import roamCaseTwo from "../images/ROAM—TravelMagazineDesign/2.png";
+import roamCaseThree from "../images/ROAM—TravelMagazineDesign/4.png";
+import roamCaseFour from "../images/ROAM—TravelMagazineDesign/7.png";
+import dropCaseOne from "../images/DROP—NewspaperDesign/1.png";
+import dropCaseTwo from "../images/DROP—NewspaperDesign/3.png";
+import dropCaseThree from "../images/DROP—NewspaperDesign/5.png";
 
 const navigation = ["ОБО МНЕ", "РАБОТЫ", "КОНТАКТЫ"];
 
+type StackProjectProps = {
+  children: ReactNode;
+  className: string;
+  detail: {
+    description: string;
+    images: string[];
+    tags: string[];
+  };
+  index: number;
+  labelledBy: string;
+};
+
+type StackContextValue = {
+  progress: MotionValue<number>;
+  pulse: () => void;
+};
+
+const StackContext = createContext<StackContextValue | null>(null);
+
+function StackStage({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const [isFlashing, setIsFlashing] = useState(false);
+
+  const pulse = () => {
+    setIsFlashing(true);
+    window.setTimeout(() => setIsFlashing(false), 720);
+  };
+
+  return (
+    <div className={`project-stack-stage ${isFlashing ? "project-stack-stage--flash" : ""}`} ref={ref}>
+      <div className="project-stack-stage__pin">
+        <StackContext.Provider value={{ progress: scrollYProgress, pulse }}>
+          {children}
+        </StackContext.Provider>
+      </div>
+    </div>
+  );
+}
+
+function StackProject({ children, className, detail, index, labelledBy }: StackProjectProps) {
+  const stack = useContext(StackContext);
+  if (!stack) throw new Error("StackProject must be rendered inside StackStage");
+  const [isOpen, setIsOpen] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+
+  const entryStart = 0.18 + (index - 1) * 0.24;
+  const entryEnd = entryStart + 0.18;
+  // Cards are taken from alternating lower corners, like sheets laid onto a table.
+  const cornerX = index % 2 === 0 ? "-42vw" : "42vw";
+  const timeline = index === 0 ? [0, 1] : [0, entryStart, entryEnd, 1];
+  const x = useTransform(stack.progress, timeline, index === 0 ? ["0vw", "0vw"] : [cornerX, cornerX, "0vw", "0vw"]);
+  const y = useTransform(stack.progress, timeline, index === 0 ? ["0vh", "0vh"] : ["105vh", "105vh", "0vh", "0vh"]);
+  const rotate = useTransform(stack.progress, timeline, index === 0 ? ["0deg", "0deg"] : [index % 2 ? "7deg" : "-7deg", index % 2 ? "7deg" : "-7deg", "0deg", "0deg"]);
+  const scale = useTransform(stack.progress, timeline, index === 0 ? [1, 1] : [0.9, 0.9, 1, 1]);
+  const openDetail = () => {
+    setIsOpen(true);
+    stack.pulse();
+  };
+  const closeDetail = () => {
+    setFullscreenImage(null);
+    setIsOpen(false);
+    stack.pulse();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (fullscreenImage) setFullscreenImage(null);
+        else closeDetail();
+      }
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [fullscreenImage, isOpen]);
+
+  return (
+    <div className="project-stack-slot">
+      <motion.article
+        className={`project ${className} ${isOpen ? "project--detail-open" : ""}`}
+        aria-labelledby={labelledBy}
+        style={{ x, y, rotate, scale, zIndex: index + 1 }}
+        layout
+      >
+        {children}
+        <button className="project__more" type="button" onClick={isOpen ? closeDetail : openDetail} aria-expanded={isOpen}>
+          {isOpen ? "СВЕРНУТЬ −" : "О ПРОЕКТЕ +"}
+        </button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.aside
+              className="project-detail"
+              aria-label="Подробности проекта"
+              initial={{ opacity: 0, y: 36, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.98 }}
+              transition={{ duration: 0.36, ease: [0.2, 0.75, 0.2, 1] }}
+            >
+              <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
+              <p className="project-detail__copy">{detail.description}</p>
+              <div className="project-detail__gallery" aria-label="Галерея проекта">
+                {detail.images.map((image, imageIndex) => (
+                  <button key={image} type="button" onClick={() => setFullscreenImage(image)} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
+                    <img src={image} alt="Фрагмент проекта" />
+                    <span>{String(imageIndex + 1).padStart(2, "0")}</span>
+                  </button>
+                ))}
+              </div>
+              <ul className="project-detail__tags">
+                {detail.tags.map((tag) => <li key={tag}>{tag}</li>)}
+              </ul>
+              <button className="project-detail__close" type="button" onClick={closeDetail}>ЗАКРЫТЬ ×</button>
+            </motion.aside>
+          )}
+        </AnimatePresence>
+        {fullscreenImage && createPortal(
+          <motion.div className="case-image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр изображения" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <button className="case-image-viewer__close" type="button" onClick={() => setFullscreenImage(null)}>ЗАКРЫТЬ ×</button>
+            <img src={fullscreenImage} alt="Изображение проекта в полном размере" />
+          </motion.div>,
+          document.body,
+        )}
+      </motion.article>
+    </div>
+  );
+}
+
 function App() {
-  const heroRef = useRef<HTMLElement>(null);
   const [compactHeaderVisible, setCompactHeaderVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setCompactHeaderVisible(!entry.isIntersecting);
-      },
-      { threshold: 0.08 },
-    );
-
-    observer.observe(hero);
-    return () => observer.disconnect();
+    const updateCompactHeader = () => setCompactHeaderVisible(window.scrollY > 67);
+    updateCompactHeader();
+    window.addEventListener("scroll", updateCompactHeader, { passive: true });
+    return () => window.removeEventListener("scroll", updateCompactHeader);
   }, []);
 
   return (
@@ -42,7 +179,7 @@ function App() {
           <br />
           ANASHINA
         </a>
-        <nav aria-label="Основная навигация">
+        <nav className={mobileMenuOpen ? "compact-navigation compact-navigation--open" : "compact-navigation"} aria-label="Основная навигация">
           {navigation.map((item, index) => (
             <a href="#works" key={item}>
               0{index + 1} / {item}
@@ -52,8 +189,18 @@ function App() {
         <a className="compact-header__cta" href="#works">
           РАБОТЫ <FiArrowUpRight aria-hidden="true" />
         </a>
+        <button
+          className="compact-menu-button"
+          type="button"
+          aria-label={mobileMenuOpen ? "Закрыть меню" : "Открыть меню"}
+          aria-expanded={mobileMenuOpen}
+          onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
+        >
+          <span />
+          <span />
+        </button>
       </header>
-      <section className="hero" ref={heroRef} aria-labelledby="hero-title">
+      <section className="hero" aria-labelledby="hero-title">
         <header className="hero-header">
           <a
             className="hero-name"
@@ -165,6 +312,55 @@ function App() {
           </section>
         </div>
         <p className="hero-scroll">SCROLL TO EXPLORE ↓</p>
+      </section>
+
+      <section id="selected-works" className="selected-works" aria-labelledby="selected-works-title">
+        <header className="selected-works__header">
+          <p className="selected-works__eyebrow">[ SELECTED WORKS / 2026 ]</p>
+          <h2 id="selected-works-title">Избранные<br />работы.</h2>
+          <p>Четыре истории о путешествиях, культуре, печати и визуальном ритме.</p>
+        </header>
+
+        <StackStage>
+        <StackProject className="project--solar" index={0} labelledBy="project-solar-title" detail={{ description: "Система айдентики для путешествия, где маршрут собирается из живой типографики, солнечных полей и наблюдений в дороге.", images: [solarCaseOne, solarCaseTwo], tags: ["АЙДЕНТИКА", "ПУТЕШЕСТВИЯ", "PRINT"] }}>
+          <div className="project__number">01</div>
+          <div className="project__metadata">
+            <p className="project__type">BRANDING / TRAVEL</p>
+            <h3 id="project-solar-title">SOLAR<br />ADVENTURES</h3>
+            <p>Айдентика приключения, построенная на ярком маршруте, свободе и солнечном цвете.</p>
+          </div>
+          <figure className="project__image"><img src={solar} alt="SOLAR ADVENTURES — айдентика путешествий" /></figure>
+        </StackProject>
+
+        <StackProject className="project--theatre" index={1} labelledBy="project-theatre-title" detail={{ description: "Плакат для театральной пьесы: масштабный образ, напряжённый цвет и типографика, которая работает как часть сценического действия.", images: [theatreCase], tags: ["ПОСТЕР", "КУЛЬТУРА", "ТИПОГРАФИКА"] }}>
+          <div className="project__number">02</div>
+          <figure className="project__image"><img src={theatre} alt="Плакат театральной пьесы" /></figure>
+          <div className="project__metadata">
+            <p className="project__type">POSTER / CULTURE</p>
+            <h3 id="project-theatre-title">Театральная<br />пьеса</h3>
+          </div>
+        </StackProject>
+
+        <StackProject className="project--roam" index={2} labelledBy="project-roam-title" detail={{ description: "Редакционный журнал о путешествиях. Карты, заметки, развороты и ритм полос складываются в личный путевой архив.", images: [roamCaseOne, roamCaseTwo, roamCaseThree, roamCaseFour], tags: ["EDITORIAL", "ЖУРНАЛ", "КАРТЫ"] }}>
+          <div className="project__number">03</div>
+          <figure className="project__image"><img src={roam} alt="ROAM — travel magazine design" /></figure>
+          <div className="project__metadata">
+            <p className="project__type">EDITORIAL / 2025</p>
+            <h3 id="project-roam-title">ROAM</h3>
+            <p>Журнал о путешествиях с живой журнальной сеткой, картами и коллекцией маршрутов.</p>
+          </div>
+        </StackProject>
+
+        <StackProject className="project--drop" index={3} labelledBy="project-drop-title" detail={{ description: "Газетная визуальная система, где новости, события и рекламные модули собираются в выразительный ежедневный формат.", images: [dropCaseOne, dropCaseTwo, dropCaseThree], tags: ["ГАЗЕТА", "СЕТКА", "ART DIRECTION"] }}>
+          <div className="project__number">04</div>
+          <div className="project__metadata">
+            <p className="project__type">NEWSPAPER / 2025</p>
+            <h3 id="project-drop-title">DROP</h3>
+            <p>Газетный формат, в котором новости, реклама и культурная афиша собираются в единую систему.</p>
+          </div>
+          <figure className="project__image"><img src={drop} alt="DROP — newspaper design" /></figure>
+        </StackProject>
+        </StackStage>
       </section>
     </main>
   );
