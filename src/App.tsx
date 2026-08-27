@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
 import { FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
-import { AnimatePresence, motion, type MotionValue, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, type MotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import avatar from "../images/dasha-avatar.jpg";
 import roam from "../images/ROAM—TravelMagazineDesign/preview/1.png";
 import drop from "../images/DROP—NewspaperDesign/preview/1.png";
@@ -24,6 +24,12 @@ import dropCaseThree from "../images/DROP—NewspaperDesign/5.png";
 
 const navigation = ["ОБО МНЕ", "РАБОТЫ", "КОНТАКТЫ"];
 const behanceUrl = "https://www.behance.net/pegasy";
+const preloadedImages = [...new Set([
+  avatar, avatarCat, solar, drop, corporate, roam, theatre,
+  solarCaseOne, solarCaseTwo, theatreCase,
+  roamCaseOne, roamCaseTwo, roamCaseThree, roamCaseFour,
+  dropCaseOne, dropCaseTwo, dropCaseThree,
+])];
 
 function haptic(pattern: number | number[] = 12) {
   if (window.matchMedia("(pointer: coarse)").matches && "vibrate" in navigator) {
@@ -54,6 +60,7 @@ const StackContext = createContext<StackContextValue | null>(null);
 function StackStage({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 210, damping: 32, mass: 0.3 });
   const [isFlashing, setIsFlashing] = useState(false);
 
   const pulse = () => {
@@ -73,7 +80,7 @@ function StackStage({ children }: { children: ReactNode }) {
   return (
     <div className={`project-stack-stage ${isFlashing ? "project-stack-stage--flash" : ""}`} ref={ref}>
       <div className="project-stack-stage__pin">
-        <StackContext.Provider value={{ progress: scrollYProgress, pulse, snapTo }}>
+        <StackContext.Provider value={{ progress: smoothProgress, pulse, snapTo }}>
           {children}
         </StackContext.Provider>
       </div>
@@ -214,6 +221,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
 function App() {
   const [compactHeaderVisible, setCompactHeaderVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   useEffect(() => {
     const updateCompactHeader = () => setCompactHeaderVisible(window.scrollY > 67);
@@ -222,8 +230,52 @@ function App() {
     return () => window.removeEventListener("scroll", updateCompactHeader);
   }, []);
 
+  useEffect(() => {
+    if (assetsLoaded) return;
+    let isCurrent = true;
+    const loaderStartedAt = Date.now();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const loadImage = (source: string) => new Promise<void>((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve();
+      image.onerror = () => resolve();
+      image.src = source;
+    });
+
+    Promise.all(preloadedImages.map(loadImage)).then(() => {
+      const elapsed = Date.now() - loaderStartedAt;
+      const minimumLoaderTime = 1100;
+      window.setTimeout(() => {
+        if (isCurrent) setAssetsLoaded(true);
+      }, Math.max(0, minimumLoaderTime - elapsed));
+    });
+
+    return () => {
+      isCurrent = false;
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [assetsLoaded]);
+
+  useEffect(() => {
+    if (!assetsLoaded) return;
+    const initialLoader = document.getElementById("initial-loader");
+    initialLoader?.classList.add("is-hidden");
+    const removeLoader = window.setTimeout(() => initialLoader?.remove(), 450);
+    return () => window.clearTimeout(removeLoader);
+  }, [assetsLoaded]);
+
   return (
     <main className="portfolio">
+      <AnimatePresence>
+        {!assetsLoaded && (
+          <motion.div className="site-loader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }} aria-live="polite" aria-label="Загружаем портфолио">
+            <p>DARIA<br />ANASHINA</p>
+            <span>ЗАГРУЖАЕМ РАБОТЫ <i /></span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <header
         className={`compact-header ${compactHeaderVisible ? "compact-header--visible" : ""}`}
         aria-label="Закреплённая навигация"
