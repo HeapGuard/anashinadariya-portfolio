@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
 import { FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
-import { AnimatePresence, motion, type MotionValue, useDragControls, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, type MotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import avatar from "../images/dasha-avatar.jpg";
 import roam from "../images/ROAM—TravelMagazineDesign/preview/1.png";
 import drop from "../images/DROP—NewspaperDesign/preview/1.png";
@@ -108,7 +108,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const detailCollapseTimer = useRef<number | null>(null);
   const detailExitTimer = useRef<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
-  const detailDragControls = useDragControls();
+  const detailSwipeStart = useRef<{ x: number; y: number; intent: "horizontal" | "vertical" | null } | null>(null);
   const galleryImages = detail.images.slice(0, 5);
 
   const entryStart = 0.18 + (index - 1) * 0.24;
@@ -168,8 +168,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     window.open(behanceUrl, "_blank", "noopener,noreferrer");
     closeDetail("right");
   };
-  const handleDetailDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
-    const offset = info.offset.x;
+  const updateDetailSwipe = (offset: number) => {
     const threshold = window.innerWidth * 0.3;
     setDragOffset(offset);
     setDragRotate(Math.max(-6, Math.min(6, (offset / window.innerWidth) * 9)));
@@ -177,9 +176,9 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     setSwipeReady(Math.abs(offset) >= threshold);
     setSwipeProgress(Math.min(Math.abs(offset) / threshold, 1));
   };
-  const handleDetailDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
-    const passedThreshold = Math.abs(info.offset.x) >= window.innerWidth * 0.3;
-    const direction = info.offset.x < 0 ? "left" : "right";
+  const finishDetailSwipe = (offset: number) => {
+    const passedThreshold = Math.abs(offset) >= window.innerWidth * 0.3;
+    const direction = offset < 0 ? "left" : "right";
     if (!passedThreshold) {
       setDragOffset(0);
       setDragRotate(0);
@@ -192,9 +191,42 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     else openBehance();
   };
   const startDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    if (!isMobile || !detailExpanded) return;
     const target = event.target as HTMLElement;
     if (target.closest(".project-detail__gallery, button, a")) return;
-    detailDragControls.start(event);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    detailSwipeStart.current = { x: event.clientX, y: event.clientY, intent: null };
+  };
+  const moveDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const swipe = detailSwipeStart.current;
+    if (!swipe || swipe.intent === "vertical") return;
+    const offsetX = event.clientX - swipe.x;
+    const offsetY = event.clientY - swipe.y;
+    if (!swipe.intent) {
+      if (Math.abs(offsetY) > Math.abs(offsetX) + 6) {
+        swipe.intent = "vertical";
+        return;
+      }
+      if (Math.abs(offsetX) < 8) return;
+      swipe.intent = "horizontal";
+    }
+    event.preventDefault();
+    updateDetailSwipe(offsetX);
+  };
+  const endDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const swipe = detailSwipeStart.current;
+    detailSwipeStart.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (!swipe || swipe.intent !== "horizontal") return;
+    finishDetailSwipe(event.clientX - swipe.x);
+  };
+  const cancelDetailDrag = () => {
+    detailSwipeStart.current = null;
+    setDragOffset(0);
+    setDragRotate(0);
+    setSwipeDirection(null);
+    setSwipeReady(false);
+    setSwipeProgress(0);
   };
   const goToSlide = (slideIndex: number) => {
     const nextIndex = Math.max(0, Math.min(slideIndex, galleryImages.length - 1));
@@ -256,14 +288,10 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
                 className={`project-detail ${detailExpanded ? "project-detail--expanded" : ""}`}
                 aria-label="Подробности проекта"
                 layout
-                drag={isMobile && detailExpanded && !detailExit ? "x" : false}
-                dragControls={detailDragControls}
-                dragListener={false}
-                dragMomentum={false}
-                dragElastic={0.12}
-                onDrag={handleDetailDrag}
-                onDragEnd={handleDetailDragEnd}
                 onPointerDown={startDetailDrag}
+                onPointerMove={moveDetailDrag}
+                onPointerUp={endDetailDrag}
+                onPointerCancel={cancelDetailDrag}
                 initial={{ opacity: 0, y: 36, scale: 0.97 }}
                 animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-18%" : "18%", y: "18%", rotate: detailExit === "left" ? -10 : 10, scale: 0.94 } : { opacity: 1, x: dragOffset, y: 0, rotate: dragRotate, scale: 1 }}
                 exit={{ opacity: 0, y: 24, scale: 0.98 }}
@@ -273,7 +301,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
               <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
               <div className="project-detail__gallery-wrap">
                 <button className="project-detail__gallery-nav project-detail__gallery-nav--prev" type="button" onClick={() => goToSlide(activeSlide - 1)} disabled={activeSlide === 0} aria-label="Предыдущее изображение">←</button>
-                <div ref={galleryRef} className="project-detail__gallery" aria-label="Галерея проекта" onScroll={updateActiveSlide} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
+                <div ref={galleryRef} className="project-detail__gallery" aria-label="Галерея проекта" onScroll={updateActiveSlide} onPointerDown={(event) => event.stopPropagation()} onPointerMove={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
                   {galleryImages.map((image, imageIndex) => (
                     <button key={image} type="button" onClick={() => { setFullscreenImage(image); haptic(16); }} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
                       <img src={image} alt="Фрагмент проекта" />

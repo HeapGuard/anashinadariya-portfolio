@@ -2628,8 +2628,8 @@ body {
 
 @media (max-width: 760px) {
   .project-stack-stage .project-detail--expanded {
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   .project-stack-stage .project-detail--expanded .project-detail__gallery button {
