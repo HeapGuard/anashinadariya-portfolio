@@ -142,9 +142,10 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const entryEnd = entryStart + 0.18;
   // Cards are taken from alternating lower corners, like sheets laid onto a table.
   const cornerX = index % 2 === 0 ? "-42vw" : "42vw";
+  const hiddenCardY = isMobile ? "105vh" : "118vh";
   const timeline = index === 0 ? [0, 1] : [0, entryStart, entryEnd, 1];
   const x = useTransform(stack.progress, timeline, index === 0 ? ["0vw", "0vw"] : [cornerX, cornerX, "0vw", "0vw"]);
-  const y = useTransform(stack.progress, timeline, index === 0 ? ["0vh", "0vh"] : ["105vh", "105vh", "0vh", "0vh"]);
+  const y = useTransform(stack.progress, timeline, index === 0 ? ["0vh", "0vh"] : [hiddenCardY, hiddenCardY, "0vh", "0vh"]);
   const rotate = useTransform(stack.progress, timeline, index === 0 ? ["0deg", "0deg"] : [index % 2 ? "7deg" : "-7deg", index % 2 ? "7deg" : "-7deg", "0deg", "0deg"]);
   const scale = useTransform(stack.progress, timeline, index === 0 ? [1, 1] : [0.9, 0.9, 1, 1]);
   const openDetail = () => {
