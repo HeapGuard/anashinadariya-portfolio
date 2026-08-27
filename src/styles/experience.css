@@ -56,7 +56,30 @@
 .experience-feature__index { grid-column: 3 / span 4; margin: clamp(30px, 4.5vw, 70px) 0 0; color: var(--yellow); }
 
 .experience-entry--digest { border-bottom: 1px solid rgba(17, 17, 17, .84); }
-.experience-entry--digest .experience-entry__company { color: var(--blue); }
+.experience-entry--digest .experience-entry__company { color: var(--blue); line-height: .94; letter-spacing: -.035em; }
+
+/* Reveal only after JavaScript confirms a supported, visible viewport. */
+.experience--motion-ready [data-experience-reveal] { opacity: 0; transition: opacity .6s ease, transform .75s cubic-bezier(.16, 1, .3, 1); }
+.experience--motion-ready .experience__header { transform: translateY(28px); }
+.experience--motion-ready .experience-entry--radcop { transform: translateX(-38px); }
+.experience--motion-ready .experience-feature { transform: translateY(32px) rotate(-.18deg) scale(.985); transition-duration: .7s, .85s; }
+.experience--motion-ready .experience-entry--digest { transform: translateX(38px); }
+.experience--motion-ready [data-experience-reveal].is-revealed { opacity: 1; transform: translate3d(0, 0, 0); }
+.experience--motion-ready .experience-feature.is-revealed { transform: translate3d(0, 0, 0) rotate(-.18deg) scale(1); }
+.experience--motion-ready .experience__header.is-revealed .experience__compass { animation: experience-compass-turn 3.6s cubic-bezier(.22, 1, .36, 1) both .16s; }
+.experience--motion-ready .experience-feature.is-revealed .experience-feature__tape { animation: experience-tape-settle .68s cubic-bezier(.16, 1, .3, 1) both .15s; }
+
+@keyframes experience-compass-turn {
+  from { transform: rotate(-110deg) scale(.45); opacity: 0; }
+  68% { transform: rotate(-6deg) scale(1.14); opacity: 1; }
+  to { transform: rotate(-16deg) scale(1); opacity: 1; }
+}
+
+@keyframes experience-tape-settle {
+  from { transform: translateY(-14px) rotate(-3deg); opacity: 0; }
+  72% { transform: translateY(2px) rotate(5deg); opacity: .66; }
+  to { transform: translateY(0) rotate(4deg); opacity: .58; }
+}
 
 @media (max-width: 760px) {
   .experience__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -67,6 +90,7 @@
   .experience-entry { min-height: 0; row-gap: 21px; padding-block: 28px 36px; }
   .experience-entry__period { grid-column: 1 / -1; }
   .experience-entry__company { grid-column: 1 / -1; font-size: clamp(3rem, 15vw, 4.8rem); }
+  .experience-entry--digest .experience-entry__company { font-size: clamp(2.55rem, 12.2vw, 4rem); line-height: .97; letter-spacing: -.018em; }
   .experience-entry__role { grid-column: 1 / span 2; }
   .experience-entry__description { grid-column: 1 / -1; margin-top: 12px; padding-right: 25px; font-size: .9rem; }
   .experience-entry__desktop-break { display: none; }
@@ -78,4 +102,11 @@
   .experience-feature__description { grid-column: 1 / -1; margin-top: 24px; padding-right: 8px; font-size: .9rem; }
   .experience-feature__index { grid-column: 1 / -1; margin-top: 31px; }
   .experience-feature__tape { right: 10%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience--motion-ready [data-experience-reveal] { opacity: 1; transform: none; transition: none; }
+  .experience--motion-ready .experience-feature.is-revealed { transform: rotate(-.18deg); }
+  .experience--motion-ready .experience__header.is-revealed .experience__compass,
+  .experience--motion-ready .experience-feature.is-revealed .experience-feature__tape { animation: none; }
 }
