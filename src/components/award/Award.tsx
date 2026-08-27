@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import awardPodium from "../../../images/award-daria-podium.png";
+import awardPodium from "../../../images/dasha-winner.png";
 
 export function Award() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -53,7 +53,7 @@ export function Award() {
 
         <figure className="award__visual">
           <div className="award__visual-float">
-            <img src={awardPodium} alt="Дарья с цветами на бумажном пьедестале первого места" loading="lazy" decoding="async" />
+            <img src={awardPodium} alt="Дарья на бумажном пьедестале первого места" loading="lazy" decoding="async" />
           </div>
         </figure>
 
