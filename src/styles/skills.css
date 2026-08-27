@@ -63,8 +63,8 @@
   white-space: nowrap;
 }
 
-.skills__heading h2 span:first-child { color: var(--yellow); }
-.skills__heading h2 span:last-child { color: var(--blue); }
+.skills__heading h2 span:first-child { color: var(--paper); }
+.skills__heading h2 span:last-child { color: var(--orange); }
 .skills__heading > p {
   padding-bottom: .5em;
   font-family: var(--font-pixel);
@@ -96,11 +96,8 @@
   top: 49%;
   left: 50%;
   display: block;
-  font-family: var(--font-display);
-  font-size: clamp(8.2rem, 16vw, 18rem);
-  line-height: .7;
-  letter-spacing: -.11em;
-  white-space: nowrap;
+  width: clamp(8rem, 12.5vw, 14rem);
+  height: auto;
   transform: translate(calc(-50% + var(--skills-x)), calc(-50% + var(--skills-y)));
   transition: transform 260ms cubic-bezier(.2, .8, .2, 1), color .3s ease;
 }
@@ -241,7 +238,7 @@
   .skills__tool { min-height: 320px; }
   .skills__tool:nth-child(2) { border-right: 0; }
   .skills__tool:nth-child(-n + 2) { border-bottom: 1px solid rgba(243, 241, 235, .55); }
-  .skills__monogram { font-size: clamp(9rem, 30vw, 15rem); }
+  .skills__monogram { width: clamp(7.8rem, 26vw, 12.5rem); }
 }
 
 @media (max-width: 600px) {
@@ -250,22 +247,23 @@
   .skills__topline p:last-child { display: none; }
   .skills__heading h2 { font-size: clamp(4.4rem, 23vw, 8rem); }
   .skills__heading h2 span:last-child { margin-left: 6%; font-size: .9em; }
-  .skills__tools { min-height: 500px; }
-  .skills__tool { min-height: 250px; padding: 12px; }
+  .skills__tools { min-height: 400px; }
+  .skills__tool { min-height: 200px; padding: 12px; }
   .skills__tool-name { right: 12px; bottom: 12px; left: 12px; overflow-wrap: anywhere; }
-  .skills__monogram { font-size: clamp(6.4rem, 31vw, 10rem); }
-  .skills__expertise { margin-inline: -4px; padding-inline: 14px; }
+  .skills__monogram { width: clamp(5.2rem, 26vw, 8.2rem); }
+  .skills__expertise { margin-top: 40px; margin-inline: -4px; padding: 18px 14px 16px; }
   .skills__expertise-head { align-items: flex-start; flex-direction: column; }
-  .skills__expertise-head h3 { font-size: clamp(3.1rem, 16vw, 5.7rem); }
+  .skills__expertise-head { gap: 12px; padding-bottom: 12px; }
+  .skills__expertise-head h3 { font-size: clamp(2.8rem, 14vw, 4.8rem); }
   .skills__expertise-head p { text-align: left; }
-  .skills__composition { display: flex; flex-direction: column; gap: 9px; }
+  .skills__composition { display: flex; flex-direction: column; gap: 5px; padding: 16px 0; }
   .skills__line { flex-wrap: wrap; justify-content: flex-start; gap: 6px 12px; white-space: normal; }
-  .skills__line--one { justify-content: flex-end; font-size: clamp(2.8rem, 15vw, 5.5rem); }
-  .skills__line--two { font-size: clamp(2rem, 10.6vw, 3.8rem); }
-  .skills__line--three { font-size: clamp(1.45rem, 7.8vw, 2.8rem); }
-  .skills__line--four { justify-content: center; font-size: clamp(2.25rem, 12vw, 4.4rem); }
+  .skills__line--one { justify-content: flex-end; font-size: clamp(2.55rem, 13.5vw, 5rem); }
+  .skills__line--two { font-size: clamp(1.85rem, 9.8vw, 3.45rem); }
+  .skills__line--three { font-size: clamp(1.35rem, 7.2vw, 2.55rem); }
+  .skills__line--four { justify-content: center; font-size: clamp(2.05rem, 11vw, 4rem); }
   .skills__line--five { justify-content: space-between; font-size: clamp(.42rem, 2.1vw, .7rem); }
-  .skills__expertise-footer { align-items: flex-start; flex-direction: column; }
+  .skills__expertise-footer { align-items: flex-start; flex-direction: column; gap: 6px; padding-top: 12px; }
 }
 
 @media (max-width: 370px) {

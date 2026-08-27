@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
+import { SiFigma } from "react-icons/si";
+import { TbBrandAdobeIllustrator, TbBrandAdobeIndesign, TbBrandAdobePhotoshop } from "react-icons/tb";
 
 const tools = [
-  { index: "01", short: "PS", name: "PHOTOSHOP" },
-  { index: "02", short: "AI", name: "ILLUSTRATOR" },
-  { index: "03", short: "ID", name: "INDESIGN" },
-  { index: "04", short: "FI", name: "FIGMA" },
+  { index: "01", Icon: TbBrandAdobePhotoshop, name: "PHOTOSHOP" },
+  { index: "02", Icon: TbBrandAdobeIllustrator, name: "ILLUSTRATOR" },
+  { index: "03", Icon: TbBrandAdobeIndesign, name: "INDESIGN" },
+  { index: "04", Icon: SiFigma, name: "FIGMA" },
 ];
 
 export function Skills() {
@@ -72,7 +74,7 @@ export function Skills() {
       <div className="skills__tools" role="list" aria-label="Инструменты">
         {tools.map((tool, index) => (
           <article className={`skills__tool skills__tool--${index + 1}`} role="listitem" key={tool.name}>
-            <span className="skills__monogram" aria-hidden="true">{tool.short}</span>
+            <tool.Icon className="skills__monogram" aria-hidden="true" focusable="false" />
             <p className="skills__tool-name"><span>{tool.index}</span> / {tool.name}</p>
             <span className="skills__tool-mark" aria-hidden="true">+</span>
           </article>
