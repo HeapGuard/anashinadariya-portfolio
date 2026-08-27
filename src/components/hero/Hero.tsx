@@ -1,7 +1,7 @@
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
 import { FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
-import { heroAssets, navigation, socialLinks } from "../../data/portfolio";
+import { heroAssets, navigation } from "../../data/portfolio";
 
 export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean; onToggleMenu: () => void }) {
   return (
@@ -91,25 +91,25 @@ export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean
             id="works"
             aria-label="Избранные работы"
           >
-            <article className="work-piece work-piece--heroAssets.solar">
-              <img src={heroAssets.solar} alt="Проект heroAssets.solar Adventures" />
+            <article className="work-piece work-piece--solar">
+              <img src={heroAssets.solar} alt="Проект Solar Adventures" />
               <span>
                 heroAssets.solar
                 <br />
                 ADVENTURES
               </span>
             </article>
-            <article className="work-piece work-piece--heroAssets.drop">
-              <img src={heroAssets.drop} alt="Проект heroAssets.drop newspaper" />
-              <span>heroAssets.drop / 2025</span>
+            <article className="work-piece work-piece--drop">
+              <img src={heroAssets.drop} alt="Проект Drop newspaper" />
+              <span>DROP / 2025</span>
             </article>
-            <article className="work-piece work-piece--heroAssets.corporate">
+            <article className="work-piece work-piece--corporate">
               <img src={heroAssets.corporate} alt="Корпоративный печатный проект" />
             </article>
-            <article className="work-piece work-piece--heroAssets.roam">
-              <img src={heroAssets.roam} alt="Проект heroAssets.roam Travel Magazine" />
+            <article className="work-piece work-piece--roam">
+              <img src={heroAssets.roam} alt="Проект ROAM Travel Magazine" />
               <span>
-                heroAssets.roam
+                ROAM
                 <br />
                 <small>TRAVEL MAGAZINE</small>
               </span>
