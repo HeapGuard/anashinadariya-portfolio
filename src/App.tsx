@@ -113,10 +113,14 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const [isOpening, setIsOpening] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
+  const [detailExpanded, setDetailExpanded] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const detailOpenTimer = useRef<number | null>(null);
+  const detailExpandTimer = useRef<number | null>(null);
+  const detailCollapseTimer = useRef<number | null>(null);
   const detailExitTimer = useRef<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
   const galleryImages = detail.images.slice(0, 5);
 
   const entryStart = 0.18 + (index - 1) * 0.24;
@@ -137,21 +141,33 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
       detailOpenTimer.current = window.setTimeout(() => {
         setIsOpening(false);
         setIsOpen(true);
+        detailExpandTimer.current = window.setTimeout(() => setDetailExpanded(true), 500);
       }, 80);
     });
   };
   const finishClose = () => {
     if (detailOpenTimer.current) window.clearTimeout(detailOpenTimer.current);
+    if (detailExpandTimer.current) window.clearTimeout(detailExpandTimer.current);
+    if (detailCollapseTimer.current) window.clearTimeout(detailCollapseTimer.current);
     if (detailExitTimer.current) window.clearTimeout(detailExitTimer.current);
     setFullscreenImage(null);
     setIsOpen(false);
     setIsOpening(false);
     setDetailExit(null);
+    setDetailExpanded(false);
     setActiveSlide(0);
   };
   const closeDetail = (direction: "left" | "right" = "left") => {
-    setDetailExit(direction);
-    detailExitTimer.current = window.setTimeout(finishClose, 340);
+    const exit = () => {
+      setDetailExit(direction);
+      detailExitTimer.current = window.setTimeout(finishClose, 340);
+    };
+    if (detailExpanded) {
+      setDetailExpanded(false);
+      detailCollapseTimer.current = window.setTimeout(exit, 280);
+    } else {
+      exit();
+    }
     stack.pulse();
     haptic(12);
   };
@@ -186,6 +202,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   return (
     <div className="project-stack-slot">
       <motion.article
+        ref={cardRef}
         className={`project ${className} ${isOpen ? "project--detail-open" : ""}`}
         aria-labelledby={labelledBy}
         style={{ x, y, rotate, scale, zIndex: index + 1 }}
@@ -203,11 +220,11 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
           document.body,
         )}
       </motion.article>
-      {isOpen && createPortal(
+      {isOpen && cardRef.current && createPortal(
         <AnimatePresence>
           <div className="project-detail-layer">
             <motion.aside
-              className={`project-detail ${className}`}
+              className={`project-detail ${detailExpanded ? "project-detail--expanded" : ""}`}
               aria-label="Подробности проекта"
               layout
               initial={{ opacity: 0, y: 36, scale: 0.97 }}
@@ -243,7 +260,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
             </motion.aside>
           </div>
         </AnimatePresence>,
-        document.body,
+        cardRef.current,
       )}
     </div>
   );
