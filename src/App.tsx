@@ -23,6 +23,7 @@ import dropCaseTwo from "../images/DROP—NewspaperDesign/3.png";
 import dropCaseThree from "../images/DROP—NewspaperDesign/5.png";
 
 const navigation = ["ОБО МНЕ", "РАБОТЫ", "КОНТАКТЫ"];
+const behanceUrl = "https://www.behance.net/pegasy";
 
 type StackProjectProps = {
   children: ReactNode;
@@ -39,6 +40,7 @@ type StackProjectProps = {
 type StackContextValue = {
   progress: MotionValue<number>;
   pulse: () => void;
+  snapTo: (index: number) => void;
 };
 
 const StackContext = createContext<StackContextValue | null>(null);
@@ -53,10 +55,19 @@ function StackStage({ children }: { children: ReactNode }) {
     window.setTimeout(() => setIsFlashing(false), 720);
   };
 
+  const snapTo = (index: number) => {
+    const stage = ref.current;
+    if (!stage) return;
+    const finishedEntry = index === 0 ? 0 : 0.36 + (index - 1) * 0.24;
+    const stageStart = window.scrollY + stage.getBoundingClientRect().top;
+    const scrollRange = stage.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: stageStart + scrollRange * finishedEntry, behavior: "smooth" });
+  };
+
   return (
     <div className={`project-stack-stage ${isFlashing ? "project-stack-stage--flash" : ""}`} ref={ref}>
       <div className="project-stack-stage__pin">
-        <StackContext.Provider value={{ progress: scrollYProgress, pulse }}>
+        <StackContext.Provider value={{ progress: scrollYProgress, pulse, snapTo }}>
           {children}
         </StackContext.Provider>
       </div>
@@ -69,6 +80,8 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   if (!stack) throw new Error("StackProject must be rendered inside StackStage");
   const [isOpen, setIsOpen] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
+  const detailSwipeStart = useRef<number | null>(null);
 
   const entryStart = 0.18 + (index - 1) * 0.24;
   const entryEnd = entryStart + 0.18;
@@ -80,13 +93,40 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const rotate = useTransform(stack.progress, timeline, index === 0 ? ["0deg", "0deg"] : [index % 2 ? "7deg" : "-7deg", index % 2 ? "7deg" : "-7deg", "0deg", "0deg"]);
   const scale = useTransform(stack.progress, timeline, index === 0 ? [1, 1] : [0.9, 0.9, 1, 1]);
   const openDetail = () => {
-    setIsOpen(true);
+    stack.snapTo(index);
     stack.pulse();
+    window.setTimeout(() => setIsOpen(true), 280);
   };
-  const closeDetail = () => {
+  const finishClose = () => {
     setFullscreenImage(null);
     setIsOpen(false);
+    setDetailExit(null);
+  };
+  const closeDetail = (direction: "left" | "right" | null = null) => {
+    if (direction) {
+      setDetailExit(direction);
+      window.setTimeout(finishClose, 280);
+    } else {
+      finishClose();
+    }
     stack.pulse();
+  };
+  const openBehance = () => {
+    setDetailExit("right");
+    stack.pulse();
+    window.open(behanceUrl, "_blank", "noopener,noreferrer");
+    window.setTimeout(finishClose, 280);
+  };
+  const handleDetailPointerDown = (event: React.PointerEvent<HTMLElement>) => {
+    detailSwipeStart.current = event.clientX;
+  };
+  const handleDetailPointerUp = (event: React.PointerEvent<HTMLElement>) => {
+    if (detailSwipeStart.current === null) return;
+    const distance = event.clientX - detailSwipeStart.current;
+    detailSwipeStart.current = null;
+    if (Math.abs(distance) < 18) return;
+    if (distance < 0) closeDetail("left");
+    else openBehance();
   };
 
   useEffect(() => {
@@ -115,7 +155,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         layout
       >
         {children}
-        <button className="project__more" type="button" onClick={isOpen ? closeDetail : openDetail} aria-expanded={isOpen}>
+        <button className="project__more" type="button" onClick={isOpen ? () => closeDetail() : openDetail} aria-expanded={isOpen}>
           {isOpen ? "СВЕРНУТЬ −" : "О ПРОЕКТЕ +"}
         </button>
         <AnimatePresence>
@@ -124,13 +164,14 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
               className="project-detail"
               aria-label="Подробности проекта"
               initial={{ opacity: 0, y: 36, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-110%" : "110%", y: 0, scale: 0.98 } : { opacity: 1, x: 0, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.98 }}
               transition={{ duration: 0.36, ease: [0.2, 0.75, 0.2, 1] }}
+              onPointerDown={handleDetailPointerDown}
+              onPointerUp={handleDetailPointerUp}
             >
               <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
-              <p className="project-detail__copy">{detail.description}</p>
-              <div className="project-detail__gallery" aria-label="Галерея проекта">
+              <div className="project-detail__gallery" aria-label="Галерея проекта" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
                 {detail.images.map((image, imageIndex) => (
                   <button key={image} type="button" onClick={() => setFullscreenImage(image)} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
                     <img src={image} alt="Фрагмент проекта" />
@@ -138,10 +179,14 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
                   </button>
                 ))}
               </div>
+              <p className="project-detail__copy">{detail.description}</p>
               <ul className="project-detail__tags">
                 {detail.tags.map((tag) => <li key={tag}>{tag}</li>)}
               </ul>
-              <button className="project-detail__close" type="button" onClick={closeDetail}>ЗАКРЫТЬ ×</button>
+              <div className="project-detail__actions">
+                <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}>← ЗАКРЫТЬ</button>
+                <a href={behanceUrl} target="_blank" rel="noreferrer">BEHANCE ↗</a>
+              </div>
             </motion.aside>
           )}
         </AnimatePresence>
