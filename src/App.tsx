@@ -6,7 +6,11 @@ import { HiOutlineMail } from "react-icons/hi";
 import { AnimatePresence, motion, type MotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import { StackStage } from "./components/selected-works/StackStage";
 import { StackProject } from "./components/selected-works/StackProject";
-import { preloadedImages } from "./data/portfolio";
+import { Hero } from "./components/hero/Hero";
+import { SelectedWorks } from "./components/selected-works/SelectedWorks";
+import { SiteLoader } from "./components/layout/SiteLoader";
+import { CompactHeader } from "./components/layout/SiteNavigation";
+import { navigation, preloadedImages } from "./data/portfolio";
 import avatar from "../images/dasha-avatar.jpg";
 import roam from "../images/ROAM—TravelMagazineDesign/preview/1.png";
 import drop from "../images/DROP—NewspaperDesign/preview/1.png";
@@ -25,7 +29,6 @@ import dropCaseOne from "../images/DROP—NewspaperDesign/1.png";
 import dropCaseTwo from "../images/DROP—NewspaperDesign/3.png";
 import dropCaseThree from "../images/DROP—NewspaperDesign/5.png";
 
-const navigation = ["ОБО МНЕ", "РАБОТЫ", "КОНТАКТЫ"];
 const behanceUrl = "https://www.behance.net/pegasy";
  
 
@@ -81,204 +84,12 @@ function App() {
     <main className="portfolio">
       <AnimatePresence>
         {!assetsLoaded && (
-          <motion.div className="site-loader" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }} aria-live="polite" aria-label="Загружаем портфолио">
-            <p>DARIA<br />ANASHINA</p>
-            <span>ЗАГРУЖАЕМ РАБОТЫ <i /></span>
-          </motion.div>
+          <SiteLoader />
         )}
       </AnimatePresence>
-      <header
-        className={`compact-header ${compactHeaderVisible ? "compact-header--visible" : ""}`}
-        aria-label="Закреплённая навигация"
-      >
-        <a className="hero-name" href="#top">
-          DARIA
-          <br />
-          ANASHINA
-        </a>
-        <nav className={mobileMenuOpen ? "compact-navigation compact-navigation--open" : "compact-navigation"} aria-label="Основная навигация">
-          {navigation.map((item, index) => (
-            <a href="#works" key={item}>
-              0{index + 1} / {item}
-            </a>
-          ))}
-        </nav>
-        <a className="compact-header__cta" href="#works">
-          РАБОТЫ <FiArrowUpRight aria-hidden="true" />
-        </a>
-        <button
-          className="compact-menu-button"
-          type="button"
-          aria-label={mobileMenuOpen ? "Закрыть меню" : "Открыть меню"}
-          aria-expanded={mobileMenuOpen}
-          onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
-        >
-          <span />
-          <span />
-        </button>
-      </header>
-      <section className="hero" aria-labelledby="hero-title">
-        <header className="hero-header">
-          <a
-            className="hero-name"
-            href="#top"
-            aria-label="Дарья Анащина, на главную"
-          >
-            DARIA
-            <br />
-            ANASHINA
-          </a>
-          <nav
-            className={mobileMenuOpen ? "hero-navigation hero-navigation--open" : "hero-navigation"}
-            aria-label="Основная навигация"
-          >
-            {navigation.map((item, index) => (
-              <a href="#works" key={item}>
-                0{index + 1} / {item}
-              </a>
-            ))}
-          </nav>
-          <button
-            className="hero-menu-button"
-            type="button"
-            aria-label={mobileMenuOpen ? "Закрыть меню" : "Открыть меню"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
-          >
-            <span />
-            <span />
-          </button>
-          <p className="hero-index">[ 01 — 01 ]</p>
-        </header>
-        <div className="hero-layout" id="top">
-          <div className="hero-copy">
-            <p className="hero-location">МОСКВА / 2026</p>
-            <h1 id="hero-title" className="hero-title">
-              <span>ПОРТ</span>
-              <span>ФОЛИО</span>
-            </h1>
-            <p className="hero-role">
-              ГРАФИЧЕСКИЙ /<br />
-              КОММУНИКАЦИОННЫЙ
-              <br />
-              ДИЗАЙНЕР
-            </p>
-            <p className="hero-categories">
-              БРЕНДИНГ • EDITORIAL • ПЕЧАТЬ • DIGITAL
-            </p>
-            <a className="hero-cta" href="#works">
-              СМОТРЕТЬ РАБОТЫ <FiArrowUpRight aria-hidden="true" />
-            </a>
-            <aside className="mobile-socials" aria-label="Связаться с Дарьей">
-              <a href="https://www.behance.net/pegasy" target="_blank" rel="noreferrer" aria-label="Behance Дарьи">
-                <FaBehance aria-hidden="true" />
-                <span>BEHANCE</span>
-              </a>
-              <a href="https://t.me/pegasy8" target="_blank" rel="noreferrer" aria-label="Telegram Дарьи">
-                <FaTelegramPlane aria-hidden="true" />
-                <span>TELEGRAM</span>
-              </a>
-              <a href="mailto:pegas915@gmail.com" aria-label="Написать Дарье на почту">
-                <HiOutlineMail aria-hidden="true" />
-                <span>MAIL</span>
-              </a>
-            </aside>
-          </div>
-          <figure className="portrait-card">
-            <img
-              className="portrait-cat"
-              src={avatarCat}
-              alt=""
-              aria-hidden="true"
-            />
-            <img src={avatar} alt="Дарья Анашина" />
-            <figcaption>
-              ДАРЬЯ АНАШИНА
-              <br />
-              GRAPHIC DESIGNER
-            </figcaption>
-          </figure>
-          <section
-            className="work-collage"
-            id="works"
-            aria-label="Избранные работы"
-          >
-            <article className="work-piece work-piece--solar">
-              <img src={solar} alt="Проект Solar Adventures" />
-              <span>
-                SOLAR
-                <br />
-                ADVENTURES
-              </span>
-            </article>
-            <article className="work-piece work-piece--drop">
-              <img src={drop} alt="Проект Drop newspaper" />
-              <span>DROP / 2025</span>
-            </article>
-            <article className="work-piece work-piece--corporate">
-              <img src={corporate} alt="Корпоративный печатный проект" />
-            </article>
-            <article className="work-piece work-piece--roam">
-              <img src={roam} alt="Проект ROAM Travel Magazine" />
-              <span>
-                ROAM
-                <br />
-                <small>TRAVEL MAGAZINE</small>
-              </span>
-            </article>
-          </section>
-        </div>
-        <p className="hero-scroll">SCROLL TO EXPLORE ↓</p>
-      </section>
-
-      <section id="selected-works" className="selected-works" aria-labelledby="selected-works-title">
-        <header className="selected-works__header">
-          <p className="selected-works__eyebrow">[ SELECTED WORKS / 2026 ]</p>
-          <h2 id="selected-works-title">Избранные<br />работы.</h2>
-          <p>Четыре истории о путешествиях, культуре, печати и визуальном ритме.</p>
-        </header>
-
-        <StackStage>
-        <StackProject className="project--solar" index={0} labelledBy="project-solar-title" detail={{ description: "Система айдентики для путешествия, где маршрут собирается из живой типографики, солнечных полей и наблюдений в дороге.", images: [solarCaseOne, solarCaseTwo], tags: ["АЙДЕНТИКА", "ПУТЕШЕСТВИЯ", "PRINT"] }}>
-          <div className="project__number">01</div>
-          <div className="project__metadata">
-            <p className="project__type">BRANDING / TRAVEL</p>
-            <h3 id="project-solar-title">SOLAR<br />ADVENTURES</h3>
-            <p>Айдентика приключения, построенная на ярком маршруте, свободе и солнечном цвете.</p>
-          </div>
-          <figure className="project__image"><img src={solar} alt="SOLAR ADVENTURES — айдентика путешествий" /></figure>
-        </StackProject>
-
-        <StackProject className="project--theatre" index={1} labelledBy="project-theatre-title" detail={{ description: "Плакат для театральной пьесы: масштабный образ, напряжённый цвет и типографика, которая работает как часть сценического действия.", images: [theatreCase], tags: ["ПОСТЕР", "КУЛЬТУРА", "ТИПОГРАФИКА"] }}>
-          <div className="project__number">02</div>
-          <figure className="project__image"><img src={theatre} alt="Плакат театральной пьесы" /></figure>
-          <div className="project__metadata">
-            <p className="project__type">POSTER / CULTURE</p>
-            <h3 id="project-theatre-title">Театральная<br />пьеса</h3>
-          </div>
-        </StackProject>
-
-        <StackProject className="project--roam" index={2} labelledBy="project-roam-title" detail={{ description: "Редакционный журнал о путешествиях. Карты, заметки, развороты и ритм полос складываются в личный путевой архив.", images: [roamCaseOne, roamCaseTwo, roamCaseThree, roamCaseFour], tags: ["EDITORIAL", "ЖУРНАЛ", "КАРТЫ"] }}>
-          <div className="project__number">03</div>
-          <figure className="project__image"><img src={roam} alt="ROAM — travel magazine design" /></figure>
-          <div className="project__metadata">
-            <p className="project__type">EDITORIAL / 2025</p>
-            <h3 id="project-roam-title">ROAM</h3>
-            <p>Журнал о путешествиях с живой журнальной сеткой, картами и коллекцией маршрутов.</p>
-          </div>
-        </StackProject>
-
-        <StackProject className="project--drop" index={3} labelledBy="project-drop-title" detail={{ description: "Газетная визуальная система, где новости, события и рекламные модули собираются в выразительный ежедневный формат.", images: [dropCaseOne, dropCaseTwo, dropCaseThree], tags: ["ГАЗЕТА", "СЕТКА", "ART DIRECTION"] }}>
-          <div className="project__number">04</div>
-          <div className="project__metadata">
-            <p className="project__type">NEWSPAPER / 2025</p>
-            <h3 id="project-drop-title">DROP</h3>
-            <p>Газетный формат, в котором новости, реклама и культурная афиша собираются в единую систему.</p>
-          </div>
-          <figure className="project__image"><img src={drop} alt="DROP — newspaper design" /></figure>
-        </StackProject>
-        </StackStage>
-      </section>
+      <CompactHeader visible={compactHeaderVisible} open={mobileMenuOpen} onToggle={() => setMobileMenuOpen((isOpen) => !isOpen)} />
+      <Hero mobileMenuOpen={mobileMenuOpen} onToggleMenu={() => setMobileMenuOpen((isOpen) => !isOpen)} />
+      <SelectedWorks />
     </main>
   );
 }
