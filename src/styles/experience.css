@@ -59,15 +59,22 @@
 .experience-entry--digest .experience-entry__company { color: var(--blue); line-height: .94; letter-spacing: -.035em; }
 
 /* Reveal only after JavaScript confirms a supported, visible viewport. */
-.experience--motion-ready [data-experience-reveal] { opacity: 0; transition: opacity .6s ease, transform .75s cubic-bezier(.16, 1, .3, 1); }
-.experience--motion-ready .experience__header { transform: translateY(28px); }
-.experience--motion-ready .experience-entry--radcop { transform: translateX(-38px); }
-.experience--motion-ready .experience-feature { transform: translateY(32px) rotate(-.18deg) scale(.985); transition-duration: .7s, .85s; }
-.experience--motion-ready .experience-entry--digest { transform: translateX(38px); }
+.experience--motion-ready [data-experience-reveal] { opacity: 0; transition: opacity .72s ease, transform .95s cubic-bezier(.16, 1, .3, 1); }
+.experience--motion-ready .experience__header { transform: translateY(46px); }
+.experience--motion-ready .experience-entry--radcop { transform: translateX(-64px) rotate(-.35deg); }
+.experience--motion-ready .experience-feature { transform: translateY(56px) rotate(-1.1deg) scale(.97); transition-duration: .78s, 1.05s; }
+.experience--motion-ready .experience-entry--digest { transform: translateX(64px) rotate(.35deg); }
 .experience--motion-ready [data-experience-reveal].is-revealed { opacity: 1; transform: translate3d(0, 0, 0); }
 .experience--motion-ready .experience-feature.is-revealed { transform: translate3d(0, 0, 0) rotate(-.18deg) scale(1); }
 .experience--motion-ready .experience__header.is-revealed .experience__compass { animation: experience-compass-turn 3.6s cubic-bezier(.22, 1, .36, 1) both .16s; }
 .experience--motion-ready .experience-feature.is-revealed .experience-feature__tape { animation: experience-tape-settle .68s cubic-bezier(.16, 1, .3, 1) both .15s; }
+.experience--motion-ready .experience__header.is-revealed h2 { animation: experience-display-in .95s cubic-bezier(.16, 1, .3, 1) both .08s; }
+.experience--motion-ready .experience-entry.is-revealed .experience-entry__company,
+.experience--motion-ready .experience-feature.is-revealed h3 { animation: experience-display-in .9s cubic-bezier(.16, 1, .3, 1) both .12s; }
+.experience--motion-ready .experience-entry.is-revealed .experience-entry__role,
+.experience--motion-ready .experience-feature.is-revealed .experience-feature__role { animation: experience-copy-in .62s cubic-bezier(.16, 1, .3, 1) both .34s; }
+.experience--motion-ready .experience-entry.is-revealed .experience-entry__description,
+.experience--motion-ready .experience-feature.is-revealed .experience-feature__description { animation: experience-copy-in .7s cubic-bezier(.16, 1, .3, 1) both .48s; }
 
 @keyframes experience-compass-turn {
   from { transform: rotate(-110deg) scale(.45); opacity: 0; }
@@ -79,6 +86,16 @@
   from { transform: translateY(-14px) rotate(-3deg); opacity: 0; }
   72% { transform: translateY(2px) rotate(5deg); opacity: .66; }
   to { transform: translateY(0) rotate(4deg); opacity: .58; }
+}
+
+@keyframes experience-display-in {
+  from { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(42px) skewY(2deg); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0) skewY(0); }
+}
+
+@keyframes experience-copy-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 760px) {
@@ -113,5 +130,12 @@
   .experience--motion-ready [data-experience-reveal] { opacity: 1; transform: none; transition: none; }
   .experience--motion-ready .experience-feature.is-revealed { transform: rotate(-.18deg); }
   .experience--motion-ready .experience__header.is-revealed .experience__compass,
-  .experience--motion-ready .experience-feature.is-revealed .experience-feature__tape { animation: none; }
+  .experience--motion-ready .experience-feature.is-revealed .experience-feature__tape,
+  .experience--motion-ready .experience__header.is-revealed h2,
+  .experience--motion-ready .experience-entry.is-revealed .experience-entry__company,
+  .experience--motion-ready .experience-feature.is-revealed h3,
+  .experience--motion-ready .experience-entry.is-revealed .experience-entry__role,
+  .experience--motion-ready .experience-feature.is-revealed .experience-feature__role,
+  .experience--motion-ready .experience-entry.is-revealed .experience-entry__description,
+  .experience--motion-ready .experience-feature.is-revealed .experience-feature__description { animation: none; }
 }
