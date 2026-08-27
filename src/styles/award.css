@@ -133,21 +133,40 @@
   padding: 0;
 }
 .award__discipline { margin: 0 0 clamp(28px, 4vw, 64px); color: var(--blue); font-family: var(--font-pixel); font-size: clamp(.58rem, .48rem + .35vw, .95rem); line-height: 1.55; }
-.award__description { max-width: 34rem; margin: 0; font-size: clamp(.88rem, .78rem + .2vw, 1.12rem); line-height: 1.58; }
+.award__description { max-width: 34rem; margin: 0; font-family: var(--font-display); font-size: clamp(1.08rem, .92rem + .52vw, 1.72rem); line-height: 1.14; letter-spacing: -.035em; }
+.award__description span { display: block; }
+.award__description span + span { margin-top: .55em; }
+.award__description span:first-child { color: var(--blue); }
+.award__description span:last-child { padding-top: .55em; border-top: 1px solid currentColor; font-family: var(--font-pixel); font-size: .55em; letter-spacing: .02em; line-height: 1.55; }
+
+.award__cat {
+  position: absolute;
+  z-index: 1;
+  bottom: clamp(148px, 19vw, 290px);
+  left: 50%;
+  width: clamp(88px, 10vw, 168px);
+  pointer-events: none;
+  transform: translate(calc(-230% + var(--award-cat-x, 0px)), var(--award-cat-y, 0px)) rotate(-6deg);
+  transition: transform .2s ease-out;
+  will-change: transform;
+}
 
 .award__visual {
   position: absolute;
   z-index: 2;
-  right: clamp(9%, 12vw, 16%);
+  right: auto;
+  left: 50%;
   bottom: -1px;
   width: clamp(360px, 38vw, 650px);
   margin: 0;
-  transform: translateY(72px) rotate(2.5deg) scale(.92);
+  transform: translate(-50%, 72px) rotate(2.5deg) scale(.92);
   opacity: 0;
 }
 
 .award__visual img { width: 100%; height: auto; filter: drop-shadow(-18px 20px 12px rgba(17, 17, 17, .16)); }
 .award__location {
+  position: relative;
+  z-index: 3;
   grid-column: 10 / -1;
   align-self: start;
   display: flex;
@@ -174,7 +193,7 @@
 @keyframes award-number-in { from { opacity: 0; transform: translateX(-70px) rotate(-4deg); } to { opacity: 1; transform: none; } }
 @keyframes award-place-in { from { opacity: 0; transform: translateX(90px); letter-spacing: .02em; } to { opacity: 1; transform: none; letter-spacing: -.085em; } }
 @keyframes award-strip-in { from { opacity: 0; transform: translateX(-90px) rotate(-2deg); } to { opacity: 1; transform: rotate(-.35deg); } }
-@keyframes award-podium-enter { from { opacity: 0; transform: translateY(72px) rotate(2.5deg) scale(.92); } to { opacity: 1; transform: translateY(0) rotate(-.45deg) scale(1); } }
+@keyframes award-podium-enter { from { opacity: 0; transform: translate(-50%, 72px) rotate(2.5deg) scale(.92); } to { opacity: 1; transform: translate(-50%, 0) rotate(-.45deg) scale(1); } }
 @keyframes award-podium-float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-9px) rotate(.45deg); } }
 @keyframes award-location-in { from { opacity: 0; transform: translateX(48px) rotate(2deg); } to { opacity: 1; transform: rotate(.45deg); } }
 
@@ -188,11 +207,12 @@
   .award__championship { grid-column: 1 / -1; margin-top: 24px; padding: 13px 14px; }
   .award__championship p,
   .award__championship span { font-size: clamp(1.1rem, 5.4vw, 1.8rem); }
-  .award__copy { position: static; grid-column: 1 / -1; align-self: start; width: auto; margin-top: 138px; padding: 0; }
+  .award__copy { position: absolute; top: clamp(118px, 34vw, 148px); left: 0; grid-column: auto; width: 100%; margin: 0; padding: 0; }
   .award__discipline { margin-bottom: 24px; }
-  .award__description { max-width: 30rem; padding-right: 12px; font-size: .9rem; }
+  .award__description { max-width: 30rem; padding-right: 12px; font-size: clamp(1rem, 4.2vw, 1.2rem); }
   .award__description br { display: none; }
-  .award__visual { right: 50%; bottom: 112px; width: min(76vw, 290px); transform: translate(50%, 72px) rotate(2.5deg) scale(.92); }
+  .award__cat { display: none; }
+  .award__visual { right: 50%; bottom: 112px; left: auto; width: min(76vw, 290px); transform: translate(50%, 72px) rotate(2.5deg) scale(.92); }
   .award--revealed .award__visual { animation-name: award-podium-enter-mobile; }
   .award__location { position: absolute; z-index: 3; right: 0; bottom: 24px; left: auto; grid-column: auto; width: min(72%, 260px); margin: 0; }
   .award__edition { right: auto; bottom: 50px; left: 0; text-align: left; }
@@ -204,8 +224,8 @@
   .award__stage { min-height: 720px; }
   .award__championship { grid-column: 1 / span 9; }
   .award__copy { position: absolute; grid-column: auto; width: 42%; }
-  .award__visual { right: 8%; width: clamp(330px, 43vw, 450px); }
-  .award__location { grid-column: 9 / -1; }
+  .award__visual { right: auto; left: 50%; width: clamp(300px, 35vw, 360px); }
+  .award__location { grid-column: 10 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -214,5 +234,13 @@
   .award__visual,
   .award__visual-float,
   .award__location { animation: none !important; }
-  .award__visual { opacity: 1; transform: translateY(0) rotate(-.45deg) scale(1); }
+  .award__visual { opacity: 1; transform: translate(-50%, 0) rotate(-.45deg) scale(1); }
+}
+
+@media (hover: none) {
+  .award__cat { display: none; }
+}
+
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .award__visual { transform: translate(50%, 0) rotate(-.45deg) scale(1); }
 }

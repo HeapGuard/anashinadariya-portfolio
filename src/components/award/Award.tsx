@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import awardPodium from "../../../images/dasha-winner.png";
+import flowerCat from "../../../images/котики на фон/hero-cat-flower.png";
 
 export function Award() {
   const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -23,6 +25,30 @@ export function Award() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+    const moveCat = (event: PointerEvent) => {
+      const bounds = stage.getBoundingClientRect();
+      const offsetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 18;
+      const offsetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 12;
+      stage.style.setProperty("--award-cat-x", `${offsetX.toFixed(1)}px`);
+      stage.style.setProperty("--award-cat-y", `${offsetY.toFixed(1)}px`);
+    };
+    const resetCat = () => {
+      stage.style.setProperty("--award-cat-x", "0px");
+      stage.style.setProperty("--award-cat-y", "0px");
+    };
+
+    stage.addEventListener("pointermove", moveCat);
+    stage.addEventListener("pointerleave", resetCat);
+    return () => {
+      stage.removeEventListener("pointermove", moveCat);
+      stage.removeEventListener("pointerleave", resetCat);
+    };
+  }, []);
+
   return (
     <section ref={sectionRef} id="award" className="award" aria-labelledby="award-title">
       <div className="award__grain" aria-hidden="true" />
@@ -40,7 +66,7 @@ export function Award() {
         <div className="award__title-rule" aria-hidden="true"><span>WINNER</span><span>001</span></div>
       </div>
 
-      <div className="award__stage">
+      <div ref={stageRef} className="award__stage">
         <div className="award__championship">
           <p>ПРОФЕССИОНАЛЫ</p>
           <span>2025</span>
@@ -48,8 +74,14 @@ export function Award() {
 
         <div className="award__copy">
           <p className="award__discipline">ГРАФИЧЕСКИЙ<br />ДИЗАЙН</p>
-          <p className="award__description">1 место по Томской области<br />{" "}в чемпионате профессионального мастерства<br />{" "}«Профессионалы»<br />{" "}в компетенции «Графический дизайн».</p>
+          <p className="award__description">
+            <span>1 МЕСТО ПО ТОМСКОЙ ОБЛАСТИ</span>
+            <span>В ЧЕМПИОНАТЕ ПРОФЕССИОНАЛЬНОГО МАСТЕРСТВА «ПРОФЕССИОНАЛЫ»</span>
+            <span>КОМПЕТЕНЦИЯ — «ГРАФИЧЕСКИЙ ДИЗАЙН»</span>
+          </p>
         </div>
+
+        <img className="award__cat" src={flowerCat} alt="" aria-hidden="true" />
 
         <figure className="award__visual">
           <div className="award__visual-float">
