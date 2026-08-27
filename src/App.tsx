@@ -322,11 +322,8 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
 
   useEffect(() => {
     if (!isOpen) return;
-    const root = document.documentElement;
     const previousOverflow = document.body.style.overflow;
     const previousOverscroll = document.body.style.overscrollBehavior;
-    const previousRootOverflow = root.style.overflow;
-    const previousRootOverscroll = root.style.overscrollBehavior;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (fullscreenImage) setFullscreenImage(null);
@@ -340,8 +337,6 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     };
     document.body.style.overflow = "hidden";
     document.body.style.overscrollBehavior = "none";
-    root.style.overflow = "hidden";
-    root.style.overscrollBehavior = "none";
     window.addEventListener("keydown", handleKeyDown);
     if (window.matchMedia("(pointer: coarse)").matches) {
       document.addEventListener("touchmove", preventIosPagePan, { passive: false });
@@ -349,8 +344,6 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     return () => {
       document.body.style.overflow = previousOverflow;
       document.body.style.overscrollBehavior = previousOverscroll;
-      root.style.overflow = previousRootOverflow;
-      root.style.overscrollBehavior = previousRootOverscroll;
       window.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("touchmove", preventIosPagePan);
     };
