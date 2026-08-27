@@ -2221,24 +2221,6 @@ body {
   background: var(--purple);
 }
 
-/* This comes after the compact panel so the whole panel expands, not only its image. */
-.project-detail--expanded {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: auto;
-  margin: 0;
-  padding: clamp(30px, 5vw, 76px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  box-shadow: none;
-}
-
-.project-detail--expanded .project-detail__gallery button {
-  height: clamp(180px, 34svh, 380px);
-}
-
 .project-detail__eyebrow {
   margin: 0;
   font-family: var(--font-pixel);
@@ -2532,18 +2514,6 @@ body {
     padding: 22px;
   }
 
-  .project-detail--expanded {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: calc(var(--stack-header-clearance) + 18px) 22px 22px;
-  }
-
-  .project-detail--expanded .project-detail__gallery button {
-    height: clamp(150px, 28svh, 280px);
-  }
-
   .project-detail__copy {
     font-size: clamp(1rem, 4.8vw, 1.28rem);
   }
@@ -2578,51 +2548,8 @@ body {
   margin: auto auto 0;
 }
 
-@media (min-width: 761px) {
-  .project-detail--expanded {
-    align-items: stretch;
-    justify-content: center;
-    gap: clamp(12px, 2vh, 22px);
-    padding: clamp(30px, 4vw, 70px) clamp(28px, 6vw, 110px);
-    overflow: hidden;
-  }
-
-  .project-detail--expanded .project-detail__gallery-wrap {
-    width: min(74vw, 1180px);
-    margin-inline: auto;
-  }
-
-  .project-detail--expanded .project-detail__gallery button {
-    height: clamp(300px, 48svh, 580px);
-  }
-
-  .project-detail--expanded .project-detail__pagination,
-  .project-detail--expanded .project-detail__copy,
-  .project-detail--expanded .project-detail__tags {
-    width: min(74vw, 1180px);
-    margin-inline: auto;
-  }
-
-  .project-detail--expanded .project-detail__copy {
-    max-width: min(74vw, 900px);
-  }
-}
-
 @media (max-width: 760px) {
-  .project-detail--expanded {
-    overflow: hidden;
-    overscroll-behavior: none;
-  }
-
-  .project-detail--expanded .project-detail__gallery button {
-    height: clamp(145px, 26svh, 260px);
-  }
-
-  .project-detail__actions {
-    width: min(320px, 100%);
-  }
-
-  .project-detail--expanded { touch-action: none; }
+  .project-detail__actions { width: min(320px, 100%); }
 }
 
 /* Selected Works uses two stable editorial templates so every card reserves space for copy. */

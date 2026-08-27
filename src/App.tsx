@@ -52,6 +52,7 @@ type StackProjectProps = {
 type StackContextValue = {
   progress: MotionValue<number>;
   pulse: () => void;
+  snapTo: (index: number) => Promise<void>;
 };
 
 const StackContext = createContext<StackContextValue | null>(null);
@@ -67,10 +68,37 @@ function StackStage({ children }: { children: ReactNode }) {
     window.setTimeout(() => setIsFlashing(false), 720);
   };
 
+  const snapTo = (index: number) => new Promise<void>((resolve) => {
+    const stage = ref.current;
+    if (!stage) {
+      resolve();
+      return;
+    }
+    const settledProgress = index === 0 ? 0 : 0.36 + (index - 1) * 0.24;
+    const stageStart = window.scrollY + stage.getBoundingClientRect().top;
+    const scrollRange = stage.offsetHeight - window.innerHeight;
+    const target = Math.round(stageStart + scrollRange * settledProgress);
+    const startedAt = performance.now();
+    const finish = () => {
+      window.scrollTo({ top: target, behavior: "auto" });
+      smoothProgress.jump(settledProgress);
+      resolve();
+    };
+    const waitForSettle = () => {
+      if (Math.abs(window.scrollY - target) < 2 || performance.now() - startedAt > 950) {
+        finish();
+        return;
+      }
+      window.requestAnimationFrame(waitForSettle);
+    };
+    window.scrollTo({ top: target, behavior: "smooth" });
+    window.requestAnimationFrame(waitForSettle);
+  });
+
   return (
     <div className={`project-stack-stage ${isFlashing ? "project-stack-stage--flash" : ""}`} ref={ref}>
       <div className="project-stack-stage__pin">
-        <StackContext.Provider value={{ progress: smoothProgress, pulse }}>
+        <StackContext.Provider value={{ progress: smoothProgress, pulse, snapTo }}>
           {children}
         </StackContext.Provider>
       </div>
@@ -82,13 +110,11 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const stack = useContext(StackContext);
   if (!stack) throw new Error("StackProject must be rendered inside StackStage");
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
-  const [detailExpanded, setDetailExpanded] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const detailOpenTimer = useRef<number | null>(null);
-  const detailExpandTimer = useRef<number | null>(null);
-  const detailCollapseTimer = useRef<number | null>(null);
   const detailExitTimer = useRef<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const galleryImages = detail.images.slice(0, 5);
@@ -103,35 +129,29 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const rotate = useTransform(stack.progress, timeline, index === 0 ? ["0deg", "0deg"] : [index % 2 ? "7deg" : "-7deg", index % 2 ? "7deg" : "-7deg", "0deg", "0deg"]);
   const scale = useTransform(stack.progress, timeline, index === 0 ? [1, 1] : [0.9, 0.9, 1, 1]);
   const openDetail = () => {
+    if (isOpening || isOpen) return;
+    setIsOpening(true);
     stack.pulse();
     haptic([10, 35, 14]);
-    detailOpenTimer.current = window.setTimeout(() => {
-      setIsOpen(true);
-      detailExpandTimer.current = window.setTimeout(() => setDetailExpanded(true), 500);
-    }, 80);
+    stack.snapTo(index).then(() => {
+      detailOpenTimer.current = window.setTimeout(() => {
+        setIsOpening(false);
+        setIsOpen(true);
+      }, 80);
+    });
   };
   const finishClose = () => {
     if (detailOpenTimer.current) window.clearTimeout(detailOpenTimer.current);
-    if (detailExpandTimer.current) window.clearTimeout(detailExpandTimer.current);
-    if (detailCollapseTimer.current) window.clearTimeout(detailCollapseTimer.current);
     if (detailExitTimer.current) window.clearTimeout(detailExitTimer.current);
     setFullscreenImage(null);
     setIsOpen(false);
+    setIsOpening(false);
     setDetailExit(null);
-    setDetailExpanded(false);
     setActiveSlide(0);
   };
   const closeDetail = (direction: "left" | "right" = "left") => {
-    const exit = () => {
-      setDetailExit(direction);
-      detailExitTimer.current = window.setTimeout(finishClose, 340);
-    };
-    if (detailExpanded) {
-      setDetailExpanded(false);
-      detailCollapseTimer.current = window.setTimeout(exit, 280);
-    } else {
-      exit();
-    }
+    setDetailExit(direction);
+    detailExitTimer.current = window.setTimeout(finishClose, 340);
     stack.pulse();
     haptic(12);
   };
@@ -172,8 +192,8 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         layout
       >
         {children}
-        <button className="project__more" type="button" onClick={isOpen ? () => closeDetail() : openDetail} aria-expanded={isOpen}>
-          {isOpen ? "СВЕРНУТЬ −" : "О ПРОЕКТЕ +"}
+        <button className="project__more" type="button" onClick={isOpen ? () => closeDetail() : openDetail} aria-expanded={isOpen} aria-busy={isOpening}>
+          {isOpening ? "ВЫРАВНИВАЕМ…" : isOpen ? "СВЕРНУТЬ −" : "О ПРОЕКТЕ +"}
         </button>
         {fullscreenImage && createPortal(
           <motion.div className="case-image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр изображения" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setFullscreenImage(null)}>
@@ -187,7 +207,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         <AnimatePresence>
           <div className="project-detail-layer">
             <motion.aside
-              className={`project-detail ${className} ${detailExpanded ? "project-detail--expanded" : ""}`}
+              className={`project-detail ${className}`}
               aria-label="Подробности проекта"
               layout
               initial={{ opacity: 0, y: 36, scale: 0.97 }}
