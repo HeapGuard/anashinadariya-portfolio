@@ -2608,55 +2608,6 @@ body {
   }
 }
 
-.project-swipe-hint {
-  position: absolute;
-  z-index: 4;
-  top: var(--stack-header-clearance);
-  bottom: 0;
-  display: grid;
-  width: clamp(76px, 24vw, 118px);
-  height: auto;
-  align-content: center;
-  justify-items: center;
-  padding-top: 0;
-  color: var(--paper);
-  background: rgba(246, 240, 228, 0.16);
-  opacity: 0.34;
-  pointer-events: none;
-  transition: opacity 0.16s ease, background 0.16s ease;
-}
-
-.project-swipe-hint span,
-.project-swipe-hint svg {
-  width: 1.5em;
-  height: 1.5em;
-  font-family: var(--font-display);
-  font-size: 2.4rem;
-  line-height: 1;
-}
-
-.project-swipe-hint--close {
-  right: 0;
-  border-radius: 100% 0 0 100%;
-}
-
-.project-swipe-hint--behance {
-  left: 0;
-  border-radius: 0 100% 100% 0;
-}
-
-.project-swipe-hint--ready {
-  opacity: 0.92;
-}
-
-.project-swipe-hint--close.project-swipe-hint--ready {
-  background: #d83733;
-}
-
-.project-swipe-hint--behance.project-swipe-hint--ready {
-  background: #28a868;
-}
-
 @media (max-width: 760px) {
   .project-detail--expanded {
     overflow: hidden;
@@ -2671,9 +2622,7 @@ body {
     width: min(320px, 100%);
   }
 
-  .project-detail--expanded {
-    touch-action: pan-y;
-  }
+  .project-detail--expanded { touch-action: none; }
 }
 
 /* Selected Works uses two stable editorial templates so every card reserves space for copy. */
