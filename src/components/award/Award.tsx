@@ -26,11 +26,12 @@ export function Award() {
   }, []);
 
   useEffect(() => {
+    const section = sectionRef.current;
     const stage = stageRef.current;
-    if (!stage || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (!section || !stage || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
     const moveCat = (event: PointerEvent) => {
-      const bounds = stage.getBoundingClientRect();
+      const bounds = section.getBoundingClientRect();
       const offsetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 18;
       const offsetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 12;
       stage.style.setProperty("--award-cat-x", `${offsetX.toFixed(1)}px`);
@@ -41,11 +42,11 @@ export function Award() {
       stage.style.setProperty("--award-cat-y", "0px");
     };
 
-    stage.addEventListener("pointermove", moveCat);
-    stage.addEventListener("pointerleave", resetCat);
+    section.addEventListener("pointermove", moveCat);
+    section.addEventListener("pointerleave", resetCat);
     return () => {
-      stage.removeEventListener("pointermove", moveCat);
-      stage.removeEventListener("pointerleave", resetCat);
+      section.removeEventListener("pointermove", moveCat);
+      section.removeEventListener("pointerleave", resetCat);
     };
   }, []);
 
@@ -81,13 +82,14 @@ export function Award() {
           </p>
         </div>
 
-        <img className="award__cat" src={flowerCat} alt="" aria-hidden="true" />
-
-        <figure className="award__visual">
-          <div className="award__visual-float">
-            <img src={awardPodium} alt="Дарья на бумажном пьедестале первого места" loading="lazy" decoding="async" />
-          </div>
-        </figure>
+        <div className="award__art">
+          <img className="award__cat" src={flowerCat} alt="" aria-hidden="true" />
+          <figure className="award__visual">
+            <div className="award__visual-float">
+              <img src={awardPodium} alt="Дарья на бумажном пьедестале первого места" loading="lazy" decoding="async" />
+            </div>
+          </figure>
+        </div>
 
         <div className="award__location">
           <span>→</span>
