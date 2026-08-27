@@ -2645,7 +2645,7 @@ body {
   .project-detail--expanded {
     overflow: hidden;
     overscroll-behavior: none;
-    touch-action: pan-y;
+    touch-action: none;
   }
 
   .project-detail--expanded .project-detail__gallery button {

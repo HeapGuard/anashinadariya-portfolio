@@ -262,10 +262,12 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     else openBehance();
   };
   const startDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
-    if (!isMobile || !detailExpanded) return;
+    if (!isMobile || !detailExpanded || !event.isPrimary) return;
     const target = event.target as HTMLElement;
     if (target.closest(".project-detail__gallery, button, a")) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
     detailSwipeStart.current = { x: event.clientX, y: event.clientY, intent: null };
   };
   const moveDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
@@ -320,18 +322,37 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
 
   useEffect(() => {
     if (!isOpen) return;
+    const root = document.documentElement;
     const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    const previousRootOverflow = root.style.overflow;
+    const previousRootOverscroll = root.style.overscrollBehavior;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (fullscreenImage) setFullscreenImage(null);
         else closeDetail("left");
       }
     };
+    const preventIosPagePan = (event: TouchEvent) => {
+      const target = event.target as Element | null;
+      if (target?.closest(".project-detail__gallery")) return;
+      event.preventDefault();
+    };
     document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    root.style.overflow = "hidden";
+    root.style.overscrollBehavior = "none";
     window.addEventListener("keydown", handleKeyDown);
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      document.addEventListener("touchmove", preventIosPagePan, { passive: false });
+    }
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
+      root.style.overflow = previousRootOverflow;
+      root.style.overscrollBehavior = previousRootOverscroll;
       window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("touchmove", preventIosPagePan);
     };
   }, [fullscreenImage, isOpen]);
 
