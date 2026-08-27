@@ -322,29 +322,28 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
 
   useEffect(() => {
     if (!isOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    const previousOverscroll = document.body.style.overscrollBehavior;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (fullscreenImage) setFullscreenImage(null);
         else closeDetail("left");
+        return;
       }
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) event.preventDefault();
     };
+    const preventWheelScroll = (event: WheelEvent) => event.preventDefault();
     const preventIosPagePan = (event: TouchEvent) => {
       const target = event.target as Element | null;
       if (target?.closest(".project-detail__gallery")) return;
       event.preventDefault();
     };
-    document.body.style.overflow = "hidden";
-    document.body.style.overscrollBehavior = "none";
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("wheel", preventWheelScroll, { passive: false });
     if (window.matchMedia("(pointer: coarse)").matches) {
       document.addEventListener("touchmove", preventIosPagePan, { passive: false });
     }
     return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.overscrollBehavior = previousOverscroll;
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", preventWheelScroll);
       document.removeEventListener("touchmove", preventIosPagePan);
     };
   }, [fullscreenImage, isOpen]);
@@ -355,7 +354,9 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         ref={cardRef}
         className={`project ${className} ${isOpen ? "project--detail-open" : ""}`}
         aria-labelledby={labelledBy}
-        style={{ x, y, rotate, scale, zIndex: index + 1 }}
+        style={isOpen
+          ? { x: 0, y: 0, rotate: 0, scale: 1, zIndex: index + 1 }
+          : { x, y, rotate, scale, zIndex: index + 1 }}
       >
         {children}
         <button className="project__more" type="button" onClick={isOpen ? () => closeDetail() : openDetail} aria-expanded={isOpen} aria-busy={isOpening}>
