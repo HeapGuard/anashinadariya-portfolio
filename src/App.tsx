@@ -52,7 +52,6 @@ type StackProjectProps = {
 type StackContextValue = {
   progress: MotionValue<number>;
   pulse: () => void;
-  snapTo: (index: number) => void;
 };
 
 const StackContext = createContext<StackContextValue | null>(null);
@@ -68,20 +67,10 @@ function StackStage({ children }: { children: ReactNode }) {
     window.setTimeout(() => setIsFlashing(false), 720);
   };
 
-  const snapTo = (index: number) => {
-    const stage = ref.current;
-    if (!stage) return;
-    const finishedEntry = index === 0 ? 0 : 0.36 + (index - 1) * 0.24;
-    const stageStart = window.scrollY + stage.getBoundingClientRect().top;
-    const scrollRange = stage.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: stageStart + scrollRange * finishedEntry, behavior: "auto" });
-    smoothProgress.jump(finishedEntry);
-  };
-
   return (
     <div className={`project-stack-stage ${isFlashing ? "project-stack-stage--flash" : ""}`} ref={ref}>
       <div className="project-stack-stage__pin">
-        <StackContext.Provider value={{ progress: smoothProgress, pulse, snapTo }}>
+        <StackContext.Provider value={{ progress: smoothProgress, pulse }}>
           {children}
         </StackContext.Provider>
       </div>
@@ -121,7 +110,6 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const rotate = useTransform(stack.progress, timeline, index === 0 ? ["0deg", "0deg"] : [index % 2 ? "7deg" : "-7deg", index % 2 ? "7deg" : "-7deg", "0deg", "0deg"]);
   const scale = useTransform(stack.progress, timeline, index === 0 ? [1, 1] : [0.9, 0.9, 1, 1]);
   const openDetail = () => {
-    stack.snapTo(index);
     stack.pulse();
     haptic([10, 35, 14]);
     detailOpenTimer.current = window.setTimeout(() => {
@@ -276,28 +264,36 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         <button className="project__more" type="button" onClick={isOpen ? () => closeDetail() : openDetail} aria-expanded={isOpen}>
           {isOpen ? "СВЕРНУТЬ −" : "О ПРОЕКТЕ +"}
         </button>
+        {fullscreenImage && createPortal(
+          <motion.div className="case-image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр изображения" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setFullscreenImage(null)}>
+            <button className="case-image-viewer__close" type="button" onClick={() => setFullscreenImage(null)}>ЗАКРЫТЬ ×</button>
+            <img src={fullscreenImage} alt="Изображение проекта в полном размере" />
+          </motion.div>,
+          document.body,
+        )}
+      </motion.article>
+      {isOpen && createPortal(
         <AnimatePresence>
-          {isOpen && (
-            <>
-              {isMobile && detailExpanded && swipeDirection && (
-                <div className={`project-swipe-hint project-swipe-hint--${swipeDirection} ${swipeReady ? "project-swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true">
-                  {swipeDirection === "close" ? <span>×</span> : <FaBehance />}
-                </div>
-              )}
-              <motion.aside
-                className={`project-detail ${detailExpanded ? "project-detail--expanded" : ""}`}
-                aria-label="Подробности проекта"
-                layout
-                onPointerDown={startDetailDrag}
-                onPointerMove={moveDetailDrag}
-                onPointerUp={endDetailDrag}
-                onPointerCancel={cancelDetailDrag}
-                initial={{ opacity: 0, y: 36, scale: 0.97 }}
-                animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-18%" : "18%", y: "18%", rotate: detailExit === "left" ? -10 : 10, scale: 0.94 } : { opacity: 1, x: dragOffset, y: 0, rotate: dragRotate, scale: 1 }}
-                exit={{ opacity: 0, y: 24, scale: 0.98 }}
-                transition={{ duration: detailExit ? 0.34 : 0.28, ease: [0.2, 0.75, 0.2, 1] }}
-                style={{ transformOrigin: "center bottom" }}
-              >
+          <div className="project-detail-layer">
+            {isMobile && detailExpanded && swipeDirection && (
+              <div className={`project-swipe-hint project-swipe-hint--${swipeDirection} ${swipeReady ? "project-swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true">
+                {swipeDirection === "close" ? <span>×</span> : <FaBehance />}
+              </div>
+            )}
+            <motion.aside
+              className={`project-detail ${className} ${detailExpanded ? "project-detail--expanded" : ""}`}
+              aria-label="Подробности проекта"
+              layout
+              onPointerDown={startDetailDrag}
+              onPointerMove={moveDetailDrag}
+              onPointerUp={endDetailDrag}
+              onPointerCancel={cancelDetailDrag}
+              initial={{ opacity: 0, y: 36, scale: 0.97 }}
+              animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-18%" : "18%", y: "18%", rotate: detailExit === "left" ? -10 : 10, scale: 0.94 } : { opacity: 1, x: dragOffset, y: 0, rotate: dragRotate, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.98 }}
+              transition={{ duration: detailExit ? 0.34 : 0.28, ease: [0.2, 0.75, 0.2, 1] }}
+              style={{ transformOrigin: "center bottom" }}
+            >
               <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
               <div className="project-detail__gallery-wrap">
                 <button className="project-detail__gallery-nav project-detail__gallery-nav--prev" type="button" onClick={() => goToSlide(activeSlide - 1)} disabled={activeSlide === 0} aria-label="Предыдущее изображение">←</button>
@@ -322,18 +318,11 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
                 <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}>← ЗАКРЫТЬ</button>
                 <a href={behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE ↗</a>
               </div>
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
-        {fullscreenImage && createPortal(
-          <motion.div className="case-image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр изображения" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setFullscreenImage(null)}>
-            <button className="case-image-viewer__close" type="button" onClick={() => setFullscreenImage(null)}>ЗАКРЫТЬ ×</button>
-            <img src={fullscreenImage} alt="Изображение проекта в полном размере" />
-          </motion.div>,
-          document.body,
-        )}
-      </motion.article>
+            </motion.aside>
+          </div>
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   );
 }

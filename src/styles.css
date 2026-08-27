@@ -2171,8 +2171,8 @@ body {
 }
 
 .project-detail {
-  position: absolute;
-  z-index: 5;
+  position: fixed;
+  z-index: 1;
   top: clamp(88px, 13vh, 150px);
   bottom: clamp(60px, 8vh, 110px);
   right: 0;
@@ -2184,14 +2184,45 @@ body {
   justify-content: flex-start;
   gap: clamp(14px, 2vh, 28px);
   padding: clamp(22px, 3vw, 54px);
-  color: inherit;
-  background: inherit;
+  color: var(--black);
+  background: var(--paper);
   box-shadow: -12px 14px 0 rgba(18, 18, 18, 0.17), inset 0 0 0 1px currentColor;
   overflow: hidden;
 }
 
+.project-detail-layer {
+  position: fixed;
+  z-index: 15;
+  inset: 0;
+  pointer-events: none;
+}
+
+.project-detail-layer .project-detail {
+  pointer-events: auto;
+}
+
+.project-detail.project--solar {
+  color: var(--black);
+  background: var(--orange);
+}
+
+.project-detail.project--theatre {
+  color: var(--paper);
+  background: var(--blue);
+}
+
+.project-detail.project--roam {
+  color: var(--black);
+  background: var(--yellow);
+}
+
+.project-detail.project--drop {
+  color: var(--paper);
+  background: var(--purple);
+}
+
 /* This comes after the compact panel so the whole panel expands, not only its image. */
-.project-stack-stage .project-detail--expanded {
+.project-detail--expanded {
   top: 0;
   right: 0;
   bottom: 0;
@@ -2204,7 +2235,7 @@ body {
   box-shadow: none;
 }
 
-.project-stack-stage .project-detail--expanded .project-detail__gallery button {
+.project-detail--expanded .project-detail__gallery button {
   height: clamp(180px, 34svh, 380px);
 }
 
@@ -2501,7 +2532,7 @@ body {
     padding: 22px;
   }
 
-  .project-stack-stage .project-detail--expanded {
+  .project-detail--expanded {
     top: 0;
     right: 0;
     bottom: 0;
@@ -2509,7 +2540,7 @@ body {
     padding: calc(var(--stack-header-clearance) + 18px) 22px 22px;
   }
 
-  .project-stack-stage .project-detail--expanded .project-detail__gallery button {
+  .project-detail--expanded .project-detail__gallery button {
     height: clamp(150px, 28svh, 280px);
   }
 
@@ -2548,7 +2579,7 @@ body {
 }
 
 @media (min-width: 761px) {
-  .project-stack-stage .project-detail--expanded {
+  .project-detail--expanded {
     align-items: stretch;
     justify-content: center;
     gap: clamp(12px, 2vh, 22px);
@@ -2556,23 +2587,23 @@ body {
     overflow: hidden;
   }
 
-  .project-stack-stage .project-detail--expanded .project-detail__gallery-wrap {
+  .project-detail--expanded .project-detail__gallery-wrap {
     width: min(74vw, 1180px);
     margin-inline: auto;
   }
 
-  .project-stack-stage .project-detail--expanded .project-detail__gallery button {
+  .project-detail--expanded .project-detail__gallery button {
     height: clamp(300px, 48svh, 580px);
   }
 
-  .project-stack-stage .project-detail--expanded .project-detail__pagination,
-  .project-stack-stage .project-detail--expanded .project-detail__copy,
-  .project-stack-stage .project-detail--expanded .project-detail__tags {
+  .project-detail--expanded .project-detail__pagination,
+  .project-detail--expanded .project-detail__copy,
+  .project-detail--expanded .project-detail__tags {
     width: min(74vw, 1180px);
     margin-inline: auto;
   }
 
-  .project-stack-stage .project-detail--expanded .project-detail__copy {
+  .project-detail--expanded .project-detail__copy {
     max-width: min(74vw, 900px);
   }
 }
@@ -2627,12 +2658,12 @@ body {
 }
 
 @media (max-width: 760px) {
-  .project-stack-stage .project-detail--expanded {
+  .project-detail--expanded {
     overflow: hidden;
     overscroll-behavior: none;
   }
 
-  .project-stack-stage .project-detail--expanded .project-detail__gallery button {
+  .project-detail--expanded .project-detail__gallery button {
     height: clamp(145px, 26svh, 260px);
   }
 
