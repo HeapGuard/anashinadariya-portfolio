@@ -8,6 +8,7 @@ import { StackStage } from "./components/selected-works/StackStage";
 import { StackProject } from "./components/selected-works/StackProject";
 import { Hero } from "./components/hero/Hero";
 import { SelectedWorks } from "./components/selected-works/SelectedWorks";
+import { Experience } from "./components/experience/Experience";
 import { SiteLoader } from "./components/layout/SiteLoader";
 import { CompactHeader } from "./components/layout/SiteNavigation";
 import { navigation, preloadedImages } from "./data/portfolio";
@@ -90,6 +91,7 @@ function App() {
       <CompactHeader visible={compactHeaderVisible} open={mobileMenuOpen} onToggle={() => setMobileMenuOpen((isOpen) => !isOpen)} />
       <Hero mobileMenuOpen={mobileMenuOpen} onToggleMenu={() => setMobileMenuOpen((isOpen) => !isOpen)} />
       <SelectedWorks />
+      <Experience />
     </main>
   );
 }
