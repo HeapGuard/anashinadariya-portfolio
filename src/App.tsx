@@ -11,6 +11,7 @@ import { SelectedWorks } from "./components/selected-works/SelectedWorks";
 import { Experience } from "./components/experience/Experience";
 import { Award } from "./components/award/Award";
 import { About } from "./components/about/About";
+import { Skills } from "./components/skills/Skills";
 import { SiteLoader } from "./components/layout/SiteLoader";
 import { CompactHeader } from "./components/layout/SiteNavigation";
 import { navigation, preloadedImages } from "./data/portfolio";
@@ -96,6 +97,7 @@ function App() {
       <Experience />
       <Award />
       <About />
+      <Skills />
     </main>
   );
 }
