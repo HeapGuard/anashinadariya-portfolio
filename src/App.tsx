@@ -75,23 +75,31 @@ function StackStage({ children }: { children: ReactNode }) {
       return;
     }
     const settledProgress = index === 0 ? 0 : 0.36 + (index - 1) * 0.24;
-    const stageStart = window.scrollY + stage.getBoundingClientRect().top;
-    const scrollRange = stage.offsetHeight - window.innerHeight;
-    const target = Math.round(stageStart + scrollRange * settledProgress);
+    const getTarget = () => {
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const stageStart = window.scrollY + stage.getBoundingClientRect().top;
+      const scrollRange = stage.offsetHeight - viewportHeight;
+      return Math.round(stageStart + scrollRange * settledProgress);
+    };
     const startedAt = performance.now();
     const finish = () => {
-      window.scrollTo({ top: target, behavior: "auto" });
-      smoothProgress.jump(settledProgress);
-      resolve();
+      window.scrollTo({ top: getTarget(), behavior: "auto" });
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: getTarget(), behavior: "auto" });
+        smoothProgress.jump(settledProgress);
+        resolve();
+      });
     };
     const waitForSettle = () => {
-      if (Math.abs(window.scrollY - target) < 2 || performance.now() - startedAt > 950) {
+      const target = getTarget();
+      const elapsed = performance.now() - startedAt;
+      if ((Math.abs(window.scrollY - target) < 2 && elapsed > 180) || elapsed > 950) {
         finish();
         return;
       }
       window.requestAnimationFrame(waitForSettle);
     };
-    window.scrollTo({ top: target, behavior: "smooth" });
+    window.scrollTo({ top: getTarget(), behavior: "smooth" });
     window.requestAnimationFrame(waitForSettle);
   });
 
