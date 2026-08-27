@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
 import { FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
-import { AnimatePresence, motion, type MotionValue, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, type MotionValue, useDragControls, useScroll, useSpring, useTransform } from "framer-motion";
 import avatar from "../images/dasha-avatar.jpg";
 import roam from "../images/ROAM—TravelMagazineDesign/preview/1.png";
 import drop from "../images/DROP—NewspaperDesign/preview/1.png";
@@ -74,7 +74,8 @@ function StackStage({ children }: { children: ReactNode }) {
     const finishedEntry = index === 0 ? 0 : 0.36 + (index - 1) * 0.24;
     const stageStart = window.scrollY + stage.getBoundingClientRect().top;
     const scrollRange = stage.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: stageStart + scrollRange * finishedEntry, behavior: "smooth" });
+    window.scrollTo({ top: stageStart + scrollRange * finishedEntry, behavior: "auto" });
+    smoothProgress.jump(finishedEntry);
   };
 
   return (
@@ -94,7 +95,21 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const [isOpen, setIsOpen] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
-  const detailSwipeStart = useRef<number | null>(null);
+  const [detailExpanded, setDetailExpanded] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [dragRotate, setDragRotate] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState<"close" | "behance" | null>(null);
+  const [swipeReady, setSwipeReady] = useState(false);
+  const [swipeProgress, setSwipeProgress] = useState(0);
+  const detailOpenTimer = useRef<number | null>(null);
+  const detailExpandTimer = useRef<number | null>(null);
+  const detailCollapseTimer = useRef<number | null>(null);
+  const detailExitTimer = useRef<number | null>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const detailDragControls = useDragControls();
+  const galleryImages = detail.images.slice(0, 5);
 
   const entryStart = 0.18 + (index - 1) * 0.24;
   const entryEnd = entryStart + 0.18;
@@ -109,41 +124,96 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     stack.snapTo(index);
     stack.pulse();
     haptic([10, 35, 14]);
-    window.setTimeout(() => setIsOpen(true), 280);
+    detailOpenTimer.current = window.setTimeout(() => {
+      setIsOpen(true);
+      detailExpandTimer.current = window.setTimeout(() => setDetailExpanded(true), 500);
+    }, 80);
   };
   const finishClose = () => {
+    if (detailOpenTimer.current) window.clearTimeout(detailOpenTimer.current);
+    if (detailExpandTimer.current) window.clearTimeout(detailExpandTimer.current);
+    if (detailCollapseTimer.current) window.clearTimeout(detailCollapseTimer.current);
+    if (detailExitTimer.current) window.clearTimeout(detailExitTimer.current);
     setFullscreenImage(null);
     setIsOpen(false);
     setDetailExit(null);
+    setDetailExpanded(false);
+    setActiveSlide(0);
+    setDragOffset(0);
+    setDragRotate(0);
+    setSwipeDirection(null);
+    setSwipeReady(false);
+    setSwipeProgress(0);
   };
-  const closeDetail = (direction: "left" | "right" | null = null) => {
-    if (direction) {
+  const closeDetail = (direction: "left" | "right" = "left") => {
+    setDragOffset(0);
+    setDragRotate(0);
+    setSwipeDirection(null);
+    setSwipeReady(false);
+    const exit = () => {
       setDetailExit(direction);
-      window.setTimeout(finishClose, 280);
+      detailExitTimer.current = window.setTimeout(finishClose, 340);
+    };
+    if (detailExpanded) {
+      setDetailExpanded(false);
+      detailCollapseTimer.current = window.setTimeout(exit, 280);
     } else {
-      finishClose();
+      exit();
     }
     stack.pulse();
     haptic(12);
   };
   const openBehance = () => {
-    setDetailExit("right");
-    stack.pulse();
     haptic([14, 40, 18]);
     window.open(behanceUrl, "_blank", "noopener,noreferrer");
-    window.setTimeout(finishClose, 280);
+    closeDetail("right");
   };
-  const handleDetailPointerDown = (event: React.PointerEvent<HTMLElement>) => {
-    detailSwipeStart.current = event.clientX;
+  const handleDetailDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
+    const offset = info.offset.x;
+    const threshold = window.innerWidth * 0.3;
+    setDragOffset(offset);
+    setDragRotate(Math.max(-6, Math.min(6, (offset / window.innerWidth) * 9)));
+    setSwipeDirection(offset === 0 ? null : offset < 0 ? "close" : "behance");
+    setSwipeReady(Math.abs(offset) >= threshold);
+    setSwipeProgress(Math.min(Math.abs(offset) / threshold, 1));
   };
-  const handleDetailPointerUp = (event: React.PointerEvent<HTMLElement>) => {
-    if (detailSwipeStart.current === null) return;
-    const distance = event.clientX - detailSwipeStart.current;
-    detailSwipeStart.current = null;
-    if (Math.abs(distance) < 18) return;
-    if (distance < 0) closeDetail("left");
+  const handleDetailDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
+    const passedThreshold = Math.abs(info.offset.x) >= window.innerWidth * 0.3;
+    const direction = info.offset.x < 0 ? "left" : "right";
+    if (!passedThreshold) {
+      setDragOffset(0);
+      setDragRotate(0);
+      setSwipeDirection(null);
+      setSwipeReady(false);
+      setSwipeProgress(0);
+      return;
+    }
+    if (direction === "left") closeDetail("left");
     else openBehance();
   };
+  const startDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest(".project-detail__gallery, button, a")) return;
+    detailDragControls.start(event);
+  };
+  const goToSlide = (slideIndex: number) => {
+    const nextIndex = Math.max(0, Math.min(slideIndex, galleryImages.length - 1));
+    galleryRef.current?.scrollTo({ left: galleryRef.current.clientWidth * nextIndex, behavior: "smooth" });
+    setActiveSlide(nextIndex);
+  };
+  const updateActiveSlide = () => {
+    const gallery = galleryRef.current;
+    if (!gallery) return;
+    setActiveSlide(Math.round(gallery.scrollLeft / gallery.clientWidth));
+  };
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 760px)");
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -151,7 +221,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (fullscreenImage) setFullscreenImage(null);
-        else closeDetail();
+        else closeDetail("left");
       }
     };
     document.body.style.overflow = "hidden";
@@ -176,24 +246,45 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         </button>
         <AnimatePresence>
           {isOpen && (
-            <motion.aside
-              className="project-detail"
-              aria-label="Подробности проекта"
-              initial={{ opacity: 0, y: 36, scale: 0.97 }}
-              animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-110%" : "110%", y: 0, scale: 0.98 } : { opacity: 1, x: 0, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.98 }}
-              transition={{ duration: 0.36, ease: [0.2, 0.75, 0.2, 1] }}
-              onPointerDown={handleDetailPointerDown}
-              onPointerUp={handleDetailPointerUp}
-            >
+            <>
+              {isMobile && detailExpanded && swipeDirection && (
+                <div className={`project-swipe-hint project-swipe-hint--${swipeDirection} ${swipeReady ? "project-swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true">
+                  {swipeDirection === "close" ? <span>×</span> : <FaBehance />}
+                </div>
+              )}
+              <motion.aside
+                className={`project-detail ${detailExpanded ? "project-detail--expanded" : ""}`}
+                aria-label="Подробности проекта"
+                layout
+                drag={isMobile && detailExpanded && !detailExit ? "x" : false}
+                dragControls={detailDragControls}
+                dragListener={false}
+                dragMomentum={false}
+                dragElastic={0.12}
+                onDrag={handleDetailDrag}
+                onDragEnd={handleDetailDragEnd}
+                onPointerDown={startDetailDrag}
+                initial={{ opacity: 0, y: 36, scale: 0.97 }}
+                animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-18%" : "18%", y: "18%", rotate: detailExit === "left" ? -10 : 10, scale: 0.94 } : { opacity: 1, x: dragOffset, y: 0, rotate: dragRotate, scale: 1 }}
+                exit={{ opacity: 0, y: 24, scale: 0.98 }}
+                transition={{ duration: detailExit ? 0.34 : 0.28, ease: [0.2, 0.75, 0.2, 1] }}
+                style={{ transformOrigin: "center bottom" }}
+              >
               <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
-              <div className="project-detail__gallery" aria-label="Галерея проекта" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
-                {detail.images.map((image, imageIndex) => (
-                  <button key={image} type="button" onClick={() => { setFullscreenImage(image); haptic(16); }} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
-                    <img src={image} alt="Фрагмент проекта" />
-                    <span>{String(imageIndex + 1).padStart(2, "0")}</span>
-                  </button>
-                ))}
+              <div className="project-detail__gallery-wrap">
+                <button className="project-detail__gallery-nav project-detail__gallery-nav--prev" type="button" onClick={() => goToSlide(activeSlide - 1)} disabled={activeSlide === 0} aria-label="Предыдущее изображение">←</button>
+                <div ref={galleryRef} className="project-detail__gallery" aria-label="Галерея проекта" onScroll={updateActiveSlide} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
+                  {galleryImages.map((image, imageIndex) => (
+                    <button key={image} type="button" onClick={() => { setFullscreenImage(image); haptic(16); }} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
+                      <img src={image} alt="Фрагмент проекта" />
+                      <span>{String(imageIndex + 1).padStart(2, "0")}</span>
+                    </button>
+                  ))}
+                </div>
+                <button className="project-detail__gallery-nav project-detail__gallery-nav--next" type="button" onClick={() => goToSlide(activeSlide + 1)} disabled={activeSlide === galleryImages.length - 1} aria-label="Следующее изображение">→</button>
+              </div>
+              <div className="project-detail__pagination" aria-label="Навигация по галерее">
+                {galleryImages.map((image, imageIndex) => <button key={image} type="button" className={imageIndex === activeSlide ? "is-active" : ""} onClick={() => goToSlide(imageIndex)} aria-label={`Показать изображение ${imageIndex + 1}`} />)}
               </div>
               <p className="project-detail__copy">{detail.description}</p>
               <ul className="project-detail__tags">
@@ -203,11 +294,12 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
                 <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}>← ЗАКРЫТЬ</button>
                 <a href={behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE ↗</a>
               </div>
-            </motion.aside>
+              </motion.aside>
+            </>
           )}
         </AnimatePresence>
         {fullscreenImage && createPortal(
-          <motion.div className="case-image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр изображения" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div className="case-image-viewer" role="dialog" aria-modal="true" aria-label="Просмотр изображения" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setFullscreenImage(null)}>
             <button className="case-image-viewer__close" type="button" onClick={() => setFullscreenImage(null)}>ЗАКРЫТЬ ×</button>
             <img src={fullscreenImage} alt="Изображение проекта в полном размере" />
           </motion.div>,

@@ -2017,7 +2017,7 @@ body {
 .project-stack-stage {
   position: relative;
   isolation: isolate;
-  --stack-header-clearance: 82px;
+  --stack-header-clearance: 72px;
 }
 
 .site-loader {
@@ -2028,7 +2028,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   padding: clamp(22px, 4vw, 64px);
-  overflow: hidden;
+  overflow: visible;
   color: var(--paper);
   background: var(--blue);
   font-family: var(--font-pixel);
@@ -2108,10 +2108,10 @@ body {
 
 .project-stack-stage .project-stack-slot .project {
   position: absolute;
-  inset: var(--stack-header-clearance) 0 0;
-  min-height: calc(100svh - var(--stack-header-clearance));
-  height: calc(100svh - var(--stack-header-clearance));
-  padding: clamp(38px, 7vh, 76px) clamp(20px, 4vw, 72px);
+  inset: 0;
+  min-height: 100svh;
+  height: 100svh;
+  padding: calc(var(--stack-header-clearance) + clamp(30px, 5vh, 64px)) clamp(20px, 4vw, 72px) clamp(26px, 5vh, 64px);
   overflow: hidden;
   transform-origin: center center;
   will-change: transform;
@@ -2122,7 +2122,7 @@ body {
 
 .project-stack-stage .project-stack-slot .project__image {
   min-height: 0;
-  height: clamp(300px, 72svh, 760px);
+  height: clamp(260px, 62svh, 660px);
 }
 
 .project-stack-stage .project-stack-slot .project__number {
@@ -2174,9 +2174,11 @@ body {
   position: absolute;
   z-index: 5;
   top: clamp(88px, 13vh, 150px);
-  right: clamp(24px, 5vw, 96px);
   bottom: clamp(60px, 8vh, 110px);
+  right: 0;
+  left: 0;
   width: min(42%, 580px);
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -2185,6 +2187,25 @@ body {
   color: inherit;
   background: inherit;
   box-shadow: -12px 14px 0 rgba(18, 18, 18, 0.17), inset 0 0 0 1px currentColor;
+  overflow: hidden;
+}
+
+/* This comes after the compact panel so the whole panel expands, not only its image. */
+.project-stack-stage .project-detail--expanded {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  margin: 0;
+  padding: clamp(30px, 5vw, 76px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: none;
+}
+
+.project-stack-stage .project-detail--expanded .project-detail__gallery button {
+  height: clamp(180px, 34svh, 380px);
 }
 
 .project-detail__eyebrow {
@@ -2197,6 +2218,10 @@ body {
   margin: 0;
   font-size: clamp(1rem, 0.88rem + 0.38vw, 1.5rem);
   line-height: 1.25;
+}
+
+.project-detail__gallery-wrap {
+  position: relative;
 }
 
 .project-detail__gallery {
@@ -2228,6 +2253,69 @@ body {
   box-shadow: 0 0 0 1px currentColor;
   cursor: zoom-in;
   scroll-snap-align: start;
+}
+
+.project-detail__gallery-nav {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 1px solid var(--paper);
+  border-radius: 0;
+  color: var(--orange);
+  background: var(--black);
+  box-shadow: 5px 5px 0 var(--orange);
+  place-items: center;
+  font-family: var(--font-pixel);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transform: translateY(-50%);
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.project-detail__gallery-nav:hover:not(:disabled) {
+  color: var(--black);
+  background: var(--orange);
+  box-shadow: 2px 2px 0 var(--paper);
+  transform: translate(-3px, calc(-50% - 3px));
+}
+
+.project-detail__gallery-nav:disabled {
+  opacity: 0.34;
+  box-shadow: none;
+  cursor: default;
+}
+
+.project-detail__gallery-nav--prev { left: 10px; }
+.project-detail__gallery-nav--next { right: 10px; }
+
+.project-detail__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: -2px;
+}
+
+.project-detail__pagination button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.project-detail__pagination button.is-active {
+  width: 24px;
+  border-radius: 5px;
+  background: currentColor;
 }
 
 .project-detail__gallery img {
@@ -2370,23 +2458,29 @@ body {
   }
 
   .project-stack-stage .project-stack-slot .project {
-    padding: clamp(50px, 7svh, 68px) clamp(18px, 6vw, 28px) 24px;
+    padding: calc(var(--stack-header-clearance) + clamp(32px, 5svh, 52px)) clamp(18px, 6vw, 28px) 20px;
+  }
+
+  .project-stack-stage .project__number {
+    top: calc(var(--stack-header-clearance) + 10px) !important;
+    bottom: auto !important;
+    font-size: clamp(3.5rem, 18vw, 5.6rem);
   }
 
   .project-stack-stage .project-stack-slot .project__image,
   .project-stack-stage .project-stack-slot .project--theatre .project__image {
     min-height: 0;
-    height: clamp(190px, 36svh, 340px);
+    height: clamp(175px, 32svh, 300px);
     margin-top: 14px;
   }
 
   .project-stack-stage .project-stack-slot .project--theatre .project__image {
-    height: clamp(250px, 48svh, 420px);
+    height: clamp(220px, 44svh, 360px);
     margin: 0;
   }
 
   .project-stack-stage .project-stack-slot .project__metadata h3 {
-    font-size: clamp(2.65rem, 13.5vw, 4.35rem);
+    font-size: clamp(2.4rem, 12.5vw, 4rem);
   }
 
   .project-stack-stage .project__image {
@@ -2407,6 +2501,18 @@ body {
     padding: 22px;
   }
 
+  .project-stack-stage .project-detail--expanded {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: calc(var(--stack-header-clearance) + 18px) 22px 22px;
+  }
+
+  .project-stack-stage .project-detail--expanded .project-detail__gallery button {
+    height: clamp(150px, 28svh, 280px);
+  }
+
   .project-detail__copy {
     font-size: clamp(1rem, 4.8vw, 1.28rem);
   }
@@ -2417,6 +2523,10 @@ body {
     padding-right: 0;
   }
 
+  .project-detail__gallery-nav {
+    display: none;
+  }
+
   .project-detail__gallery button {
     flex-basis: 100%;
     height: clamp(140px, 24svh, 220px);
@@ -2424,6 +2534,218 @@ body {
 
   .project-detail__actions > * {
     min-height: 42px;
+  }
+}
+
+/* Detail presentation: compact in the centre first, then a contained full-card layout. */
+.project-detail {
+  min-height: 0;
+}
+
+.project-detail__actions {
+  width: min(360px, 100%);
+  margin: auto auto 0;
+}
+
+@media (min-width: 761px) {
+  .project-stack-stage .project-detail--expanded {
+    align-items: stretch;
+    justify-content: center;
+    gap: clamp(12px, 2vh, 22px);
+    padding: clamp(30px, 4vw, 70px) clamp(28px, 6vw, 110px);
+    overflow: hidden;
+  }
+
+  .project-stack-stage .project-detail--expanded .project-detail__gallery-wrap {
+    width: min(74vw, 1180px);
+    margin-inline: auto;
+  }
+
+  .project-stack-stage .project-detail--expanded .project-detail__gallery button {
+    height: clamp(300px, 48svh, 580px);
+  }
+
+  .project-stack-stage .project-detail--expanded .project-detail__pagination,
+  .project-stack-stage .project-detail--expanded .project-detail__copy,
+  .project-stack-stage .project-detail--expanded .project-detail__tags {
+    width: min(74vw, 1180px);
+    margin-inline: auto;
+  }
+
+  .project-stack-stage .project-detail--expanded .project-detail__copy {
+    max-width: min(74vw, 900px);
+  }
+}
+
+.project-swipe-hint {
+  position: absolute;
+  z-index: 4;
+  top: var(--stack-header-clearance);
+  bottom: 0;
+  display: grid;
+  width: clamp(76px, 24vw, 118px);
+  height: auto;
+  align-content: center;
+  justify-items: center;
+  padding-top: 0;
+  color: var(--paper);
+  background: rgba(246, 240, 228, 0.16);
+  opacity: 0.34;
+  pointer-events: none;
+  transition: opacity 0.16s ease, background 0.16s ease;
+}
+
+.project-swipe-hint span,
+.project-swipe-hint svg {
+  width: 1.5em;
+  height: 1.5em;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.project-swipe-hint--close {
+  right: 0;
+  border-radius: 100% 0 0 100%;
+}
+
+.project-swipe-hint--behance {
+  left: 0;
+  border-radius: 0 100% 100% 0;
+}
+
+.project-swipe-hint--ready {
+  opacity: 0.92;
+}
+
+.project-swipe-hint--close.project-swipe-hint--ready {
+  background: #d83733;
+}
+
+.project-swipe-hint--behance.project-swipe-hint--ready {
+  background: #28a868;
+}
+
+@media (max-width: 760px) {
+  .project-stack-stage .project-detail--expanded {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .project-stack-stage .project-detail--expanded .project-detail__gallery button {
+    height: clamp(145px, 26svh, 260px);
+  }
+
+  .project-detail__actions {
+    width: min(320px, 100%);
+  }
+
+  .project-detail--expanded {
+    touch-action: pan-y;
+  }
+}
+
+/* Selected Works uses two stable editorial templates so every card reserves space for copy. */
+@media (min-width: 761px) {
+  .project-stack-stage .project--solar,
+  .project-stack-stage .project--drop,
+  .project-stack-stage .project--theatre,
+  .project-stack-stage .project--roam {
+    align-items: center;
+  }
+
+  /* Template A: text left, image right. */
+  .project-stack-stage .project--solar .project__metadata,
+  .project-stack-stage .project--drop .project__metadata {
+    grid-column: 1 / span 4;
+    align-self: center;
+  }
+
+  .project-stack-stage .project--solar .project__image,
+  .project-stack-stage .project--drop .project__image {
+    grid-column: 6 / -1;
+  }
+
+  /* Template B: image left, text right. */
+  .project-stack-stage .project--theatre .project__image,
+  .project-stack-stage .project--roam .project__image {
+    grid-column: 1 / span 7;
+  }
+
+  .project-stack-stage .project--theatre .project__metadata,
+  .project-stack-stage .project--roam .project__metadata {
+    grid-column: 9 / -1;
+    align-self: center;
+  }
+
+  .project-stack-stage .project__image {
+    height: clamp(280px, 52svh, 600px);
+    min-height: 0;
+    margin: 0;
+  }
+
+  .project-stack-stage .project__metadata h3 {
+    margin: clamp(10px, 1.7vh, 22px) 0;
+    font-size: clamp(2.35rem, 4.35vw, 5.6rem);
+    line-height: 0.84;
+  }
+
+  .project-stack-stage .project__metadata > p:last-child {
+    max-width: 31ch;
+    font-size: clamp(0.82rem, 0.75rem + 0.16vw, 1.02rem);
+  }
+
+  .project-stack-stage .project__number {
+    top: calc(var(--stack-header-clearance) + 18px) !important;
+    right: clamp(20px, 4vw, 72px) !important;
+    bottom: auto !important;
+    left: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .project-stack-stage .project--solar,
+  .project-stack-stage .project--drop,
+  .project-stack-stage .project--theatre,
+  .project-stack-stage .project--roam {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: clamp(14px, 2.5svh, 24px);
+  }
+
+  .project-stack-stage .project__metadata,
+  .project-stack-stage .project--solar .project__metadata,
+  .project-stack-stage .project--drop .project__metadata,
+  .project-stack-stage .project--theatre .project__metadata,
+  .project-stack-stage .project--roam .project__metadata {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: end;
+  }
+
+  .project-stack-stage .project__image,
+  .project-stack-stage .project--solar .project__image,
+  .project-stack-stage .project--drop .project__image,
+  .project-stack-stage .project--theatre .project__image,
+  .project-stack-stage .project--roam .project__image {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: clamp(150px, 27svh, 250px);
+    min-height: 0;
+    margin: 0;
+  }
+
+  .project-stack-stage .project__metadata h3 {
+    margin: 8px 0 12px;
+    font-size: clamp(2.15rem, 10.2vw, 3.25rem);
+    line-height: 0.88;
+  }
+
+  .project-stack-stage .project__metadata > p:last-child {
+    max-width: 36ch;
+    font-size: clamp(0.76rem, 3.55vw, 0.95rem);
+    line-height: 1.38;
   }
 }
 
