@@ -18,7 +18,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 760px)");
   const [dragOffset, setDragOffset] = useState(0);
   const [dragRotate, setDragRotate] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<"close" | "behance" | null>(null);
@@ -170,14 +170,6 @@ export function StackProject({ children, className, detail, index, labelledBy }:
     if (!gallery) return;
     setActiveSlide(Math.round(gallery.scrollLeft / gallery.clientWidth));
   };
-
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 760px)");
-    const update = () => setIsMobile(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
