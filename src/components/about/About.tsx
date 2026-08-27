@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import aboutDaria from "../../../images/about-daria-collage.png";
+import aboutDaria from "../../../images/dasha-about.png";
 
 const details = ["MOSCOW", "RU — NATIVE", "EN — B1", "ES — A1"];
 const interests = ["MUSIC", "SPORT", "TRAVEL", "SPANISH"];
@@ -75,7 +75,7 @@ export function About() {
           <div className="about__visual-inner">
             <img
               src={aboutDaria}
-              alt="Дарья с печатными макетами в бумажном коллаже"
+              alt="Дарья с ноутбуком в бумажном коллаже"
               loading="lazy"
               decoding="async"
             />
