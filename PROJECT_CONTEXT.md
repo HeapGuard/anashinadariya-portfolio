@@ -4,7 +4,7 @@
 
 ## 1. Что это за проект
 
-Одностраничное портфолио Дарьи Анащиной на React + TypeScript + Vite. Визуальный язык: royal blue paper/cardboard texture, editorial collage, pixel-типографика, бумажные слои, тени и физические перекрытия.
+Одностраничное портфолио Дарьи Анашиной на React + TypeScript + Vite. Визуальный язык: royal blue paper/cardboard texture, editorial collage, pixel-типографика, бумажные слои, тени и физические перекрытия.
 
 Основные блоки страницы:
 
@@ -154,7 +154,7 @@ src/
 ## 10. Шаблон сообщения для нового чата
 
 ```text
-Это React/Vite-портфолио Дарьи Анащиной.
+Это React/Vite-портфолио Дарьи Анашиной.
 Сначала прочитай PROJECT_CONTEXT.md и проверь git status.
 Сохраняй текущую визуальную композицию, iPhone-safe выравнивание карточек,
 stack-анимацию, drag-индикаторы, независимую галерею и fullscreen viewer.
