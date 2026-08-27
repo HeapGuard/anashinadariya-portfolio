@@ -2201,6 +2201,26 @@ body {
   pointer-events: auto;
 }
 
+.project-detail.project--solar {
+  color: var(--black);
+  background: var(--orange);
+}
+
+.project-detail.project--theatre {
+  color: var(--paper);
+  background: var(--blue);
+}
+
+.project-detail.project--roam {
+  color: var(--black);
+  background: var(--yellow);
+}
+
+.project-detail.project--drop {
+  color: var(--paper);
+  background: var(--purple);
+}
+
 .project-detail--expanded {
   top: 0;
   right: 0;
@@ -2557,6 +2577,44 @@ body {
   margin: auto auto 0;
 }
 
+.project-swipe-hint {
+  position: absolute;
+  z-index: 4;
+  top: var(--stack-header-clearance);
+  bottom: 0;
+  display: grid;
+  width: clamp(76px, 24vw, 118px);
+  align-content: center;
+  justify-items: center;
+  color: var(--paper);
+  background: rgba(246, 240, 228, 0.16);
+  pointer-events: none;
+  transition: opacity 0.16s ease, background 0.16s ease;
+}
+
+.project-swipe-hint span,
+.project-swipe-hint svg {
+  width: 1.5em;
+  height: 1.5em;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.project-swipe-hint--close {
+  right: 0;
+  border-radius: 100% 0 0 100%;
+}
+
+.project-swipe-hint--behance {
+  left: 0;
+  border-radius: 0 100% 100% 0;
+}
+
+.project-swipe-hint--ready { opacity: 0.92; }
+.project-swipe-hint--close.project-swipe-hint--ready { background: #d83733; }
+.project-swipe-hint--behance.project-swipe-hint--ready { background: #28a868; }
+
 @media (min-width: 761px) {
   .project-detail--expanded {
     align-items: stretch;
@@ -2587,7 +2645,7 @@ body {
   .project-detail--expanded {
     overflow: hidden;
     overscroll-behavior: none;
-    touch-action: none;
+    touch-action: pan-y;
   }
 
   .project-detail--expanded .project-detail__gallery button {

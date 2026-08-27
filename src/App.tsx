@@ -115,12 +115,19 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [dragRotate, setDragRotate] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState<"close" | "behance" | null>(null);
+  const [swipeReady, setSwipeReady] = useState(false);
+  const [swipeProgress, setSwipeProgress] = useState(0);
   const detailOpenTimer = useRef<number | null>(null);
   const detailExpandTimer = useRef<number | null>(null);
   const detailCollapseTimer = useRef<number | null>(null);
   const detailExitTimer = useRef<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLElement | null>(null);
+  const detailSwipeStart = useRef<{ x: number; y: number; intent: "horizontal" | "vertical" | null } | null>(null);
   const galleryImages = detail.images.slice(0, 5);
 
   const entryStart = 0.18 + (index - 1) * 0.24;
@@ -156,8 +163,17 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     setDetailExit(null);
     setDetailExpanded(false);
     setActiveSlide(0);
+    setDragOffset(0);
+    setDragRotate(0);
+    setSwipeDirection(null);
+    setSwipeReady(false);
+    setSwipeProgress(0);
   };
   const closeDetail = (direction: "left" | "right" = "left") => {
+    setDragOffset(0);
+    setDragRotate(0);
+    setSwipeDirection(null);
+    setSwipeReady(false);
     const exit = () => {
       setDetailExit(direction);
       detailExitTimer.current = window.setTimeout(finishClose, 340);
@@ -171,6 +187,69 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     stack.pulse();
     haptic(12);
   };
+  const openBehance = () => {
+    haptic([14, 40, 18]);
+    closeDetail("right");
+    window.setTimeout(() => window.location.assign(behanceUrl), 520);
+  };
+  const updateDetailSwipe = (offset: number) => {
+    const threshold = window.innerWidth * 0.3;
+    setDragOffset(offset);
+    setDragRotate(Math.max(-6, Math.min(6, (offset / window.innerWidth) * 9)));
+    setSwipeDirection(offset === 0 ? null : offset < 0 ? "close" : "behance");
+    setSwipeReady(Math.abs(offset) >= threshold);
+    setSwipeProgress(Math.min(Math.abs(offset) / threshold, 1));
+  };
+  const finishDetailSwipe = (offset: number) => {
+    if (Math.abs(offset) < window.innerWidth * 0.3) {
+      setDragOffset(0);
+      setDragRotate(0);
+      setSwipeDirection(null);
+      setSwipeReady(false);
+      setSwipeProgress(0);
+      return;
+    }
+    if (offset < 0) closeDetail("left");
+    else openBehance();
+  };
+  const startDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    if (!isMobile || !detailExpanded) return;
+    const target = event.target as HTMLElement;
+    if (target.closest(".project-detail__gallery, button, a")) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    detailSwipeStart.current = { x: event.clientX, y: event.clientY, intent: null };
+  };
+  const moveDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const swipe = detailSwipeStart.current;
+    if (!swipe || swipe.intent === "vertical") return;
+    const offsetX = event.clientX - swipe.x;
+    const offsetY = event.clientY - swipe.y;
+    if (!swipe.intent) {
+      if (Math.abs(offsetY) > Math.abs(offsetX) + 6) {
+        swipe.intent = "vertical";
+        return;
+      }
+      if (Math.abs(offsetX) < 8) return;
+      swipe.intent = "horizontal";
+    }
+    event.preventDefault();
+    updateDetailSwipe(offsetX);
+  };
+  const endDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const swipe = detailSwipeStart.current;
+    detailSwipeStart.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (!swipe || swipe.intent !== "horizontal") return;
+    finishDetailSwipe(event.clientX - swipe.x);
+  };
+  const cancelDetailDrag = () => {
+    detailSwipeStart.current = null;
+    setDragOffset(0);
+    setDragRotate(0);
+    setSwipeDirection(null);
+    setSwipeReady(false);
+    setSwipeProgress(0);
+  };
   const goToSlide = (slideIndex: number) => {
     const nextIndex = Math.max(0, Math.min(slideIndex, galleryImages.length - 1));
     galleryRef.current?.scrollTo({ left: galleryRef.current.clientWidth * nextIndex, behavior: "smooth" });
@@ -181,6 +260,14 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     if (!gallery) return;
     setActiveSlide(Math.round(gallery.scrollLeft / gallery.clientWidth));
   };
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 760px)");
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -223,12 +310,21 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
       {isOpen && cardRef.current && createPortal(
         <AnimatePresence>
           <div className="project-detail-layer">
+            {isMobile && detailExpanded && swipeDirection && (
+              <div className={`project-swipe-hint project-swipe-hint--${swipeDirection} ${swipeReady ? "project-swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true">
+                {swipeDirection === "close" ? <span>×</span> : <FaBehance />}
+              </div>
+            )}
             <motion.aside
-              className={`project-detail ${detailExpanded ? "project-detail--expanded" : ""}`}
+              className={`project-detail ${className} ${detailExpanded ? "project-detail--expanded" : ""}`}
               aria-label="Подробности проекта"
               layout
+              onPointerDown={startDetailDrag}
+              onPointerMove={moveDetailDrag}
+              onPointerUp={endDetailDrag}
+              onPointerCancel={cancelDetailDrag}
               initial={{ opacity: 0, y: 36, scale: 0.97 }}
-              animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-18%" : "18%", y: "18%", rotate: detailExit === "left" ? -10 : 10, scale: 0.94 } : { opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
+              animate={detailExit ? { opacity: 0, x: detailExit === "left" ? "-18%" : "18%", y: "18%", rotate: detailExit === "left" ? -10 : 10, scale: 0.94 } : { opacity: 1, x: dragOffset, y: 0, rotate: dragRotate, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.98 }}
               transition={{ duration: detailExit ? 0.34 : 0.28, ease: [0.2, 0.75, 0.2, 1] }}
               style={{ transformOrigin: "center bottom" }}
