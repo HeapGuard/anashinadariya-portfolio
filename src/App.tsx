@@ -52,7 +52,7 @@ type StackProjectProps = {
 type StackContextValue = {
   progress: MotionValue<number>;
   pulse: () => void;
-  snapTo: (index: number) => Promise<void>;
+  snapTo: (index: number, card: HTMLElement) => Promise<boolean>;
 };
 
 const StackContext = createContext<StackContextValue | null>(null);
@@ -68,10 +68,10 @@ function StackStage({ children }: { children: ReactNode }) {
     window.setTimeout(() => setIsFlashing(false), 720);
   };
 
-  const snapTo = (index: number) => new Promise<void>((resolve) => {
+  const snapTo = (index: number, card: HTMLElement) => new Promise<boolean>((resolve) => {
     const stage = ref.current;
     if (!stage) {
-      resolve();
+      resolve(false);
       return;
     }
     const settledProgress = index === 0 ? 0 : 0.36 + (index - 1) * 0.24;
@@ -81,26 +81,63 @@ function StackStage({ children }: { children: ReactNode }) {
       const scrollRange = stage.offsetHeight - viewportHeight;
       return Math.round(stageStart + scrollRange * settledProgress);
     };
+    const viewport = window.visualViewport;
+    let animationFrame = 0;
+    let stableFrames = 0;
+    let correctionCount = 0;
+    let viewportChanged = false;
     const startedAt = performance.now();
-    const finish = () => {
-      window.scrollTo({ top: getTarget(), behavior: "auto" });
-      window.requestAnimationFrame(() => {
-        window.scrollTo({ top: getTarget(), behavior: "auto" });
-        smoothProgress.jump(settledProgress);
-        resolve();
-      });
+    let lastViewportChangeAt = startedAt;
+    const clear = () => {
+      window.cancelAnimationFrame(animationFrame);
+      viewport?.removeEventListener("resize", markViewportChange);
+      viewport?.removeEventListener("scroll", markViewportChange);
     };
-    const waitForSettle = () => {
+    const finish = (aligned: boolean) => {
+      clear();
+      resolve(aligned);
+    };
+    const markViewportChange = () => {
+      viewportChanged = true;
+      stableFrames = 0;
+      lastViewportChangeAt = performance.now();
+    };
+    const waitForAlignment = () => {
       const target = getTarget();
       const elapsed = performance.now() - startedAt;
-      if ((Math.abs(window.scrollY - target) < 2 && elapsed > 180) || elapsed > 950) {
-        finish();
+      const shouldCorrect = viewportChanged || (elapsed > 1_100 && Math.abs(window.scrollY - target) > 2);
+      if (shouldCorrect) {
+        viewportChanged = false;
+        correctionCount += 1;
+        window.scrollTo({ top: target, behavior: "auto" });
+      }
+
+      if (Math.abs(window.scrollY - target) > 2) {
+        if (elapsed > 1_900 && correctionCount >= 3) finish(false);
+        else animationFrame = window.requestAnimationFrame(waitForAlignment);
         return;
       }
-      window.requestAnimationFrame(waitForSettle);
+
+      smoothProgress.jump(settledProgress);
+      const rect = card.getBoundingClientRect();
+      const viewportIsQuiet = performance.now() - lastViewportChangeAt >= 120;
+      const isAligned = viewportIsQuiet && Math.abs(rect.top) < 2 && Math.abs(rect.left) < 2;
+      stableFrames = isAligned ? stableFrames + 1 : 0;
+
+      if (stableFrames >= 2) {
+        finish(true);
+        return;
+      }
+      if (elapsed > 1_900 && correctionCount >= 3) {
+        finish(false);
+        return;
+      }
+      animationFrame = window.requestAnimationFrame(waitForAlignment);
     };
+    viewport?.addEventListener("resize", markViewportChange);
+    viewport?.addEventListener("scroll", markViewportChange);
     window.scrollTo({ top: getTarget(), behavior: "smooth" });
-    window.requestAnimationFrame(waitForSettle);
+    animationFrame = window.requestAnimationFrame(waitForAlignment);
   });
 
   return (
@@ -153,16 +190,19 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     setIsOpening(true);
     stack.pulse();
     haptic([10, 35, 14]);
-    stack.snapTo(index).then(() => {
-      detailOpenTimer.current = window.setTimeout(() => {
-        setIsOpening(false);
-        setIsOpen(true);
-        detailExpandTimer.current = window.setTimeout(() => setDetailExpanded(true), 500);
-      }, 80);
+    const card = cardRef.current;
+    if (!card) {
+      setIsOpening(false);
+      return;
+    }
+    stack.snapTo(index, card).then((isAligned) => {
+      setIsOpening(false);
+      if (!isAligned) return;
+      setIsOpen(true);
+      detailExpandTimer.current = window.setTimeout(() => setDetailExpanded(true), 500);
     });
   };
   const finishClose = () => {
-    if (detailOpenTimer.current) window.clearTimeout(detailOpenTimer.current);
     if (detailExpandTimer.current) window.clearTimeout(detailExpandTimer.current);
     if (detailCollapseTimer.current) window.clearTimeout(detailCollapseTimer.current);
     if (detailExitTimer.current) window.clearTimeout(detailExitTimer.current);
@@ -302,7 +342,6 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
         className={`project ${className} ${isOpen ? "project--detail-open" : ""}`}
         aria-labelledby={labelledBy}
         style={{ x, y, rotate, scale, zIndex: index + 1 }}
-        layout
       >
         {children}
         <button className="project__more" type="button" onClick={isOpen ? () => closeDetail() : openDetail} aria-expanded={isOpen} aria-busy={isOpening}>
