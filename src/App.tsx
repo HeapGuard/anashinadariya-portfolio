@@ -156,6 +156,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   if (!stack) throw new Error("StackProject must be rendered inside StackStage");
   const [isOpen, setIsOpen] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
+  const [isAlignmentLocked, setIsAlignmentLocked] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
   const [detailExpanded, setDetailExpanded] = useState(false);
@@ -198,6 +199,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     stack.snapTo(index, card).then((isAligned) => {
       setIsOpening(false);
       if (!isAligned) return;
+      setIsAlignmentLocked(true);
       setIsOpen(true);
       detailExpandTimer.current = window.setTimeout(() => setDetailExpanded(true), 500);
     });
@@ -348,13 +350,29 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
     };
   }, [fullscreenImage, isOpen]);
 
+  useEffect(() => {
+    if (isOpen || isOpening || !isAlignmentLocked) return;
+    const releaseAlignment = () => setIsAlignmentLocked(false);
+    const releaseAlignmentOnKey = (event: KeyboardEvent) => {
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) releaseAlignment();
+    };
+    window.addEventListener("wheel", releaseAlignment, { passive: true, once: true });
+    window.addEventListener("touchmove", releaseAlignment, { passive: true, once: true });
+    window.addEventListener("keydown", releaseAlignmentOnKey);
+    return () => {
+      window.removeEventListener("wheel", releaseAlignment);
+      window.removeEventListener("touchmove", releaseAlignment);
+      window.removeEventListener("keydown", releaseAlignmentOnKey);
+    };
+  }, [isAlignmentLocked, isOpen, isOpening]);
+
   return (
     <div className="project-stack-slot">
       <motion.article
         ref={cardRef}
         className={`project ${className} ${isOpen ? "project--detail-open" : ""}`}
         aria-labelledby={labelledBy}
-        style={isOpen
+        style={isOpen || isAlignmentLocked
           ? { x: 0, y: 0, rotate: 0, scale: 1, zIndex: index + 1 }
           : { x, y, rotate, scale, zIndex: index + 1 }}
       >
