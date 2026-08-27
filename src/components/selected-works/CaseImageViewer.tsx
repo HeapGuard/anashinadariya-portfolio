@@ -1,0 +1,2 @@
+import { motion } from "framer-motion";
+export function CaseImageViewer({ image, onClose }: { image: string; onClose: () => void }) { return <motion.div className="case-image-viewer" role="dialog" aria-modal="true" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><button className="case-image-viewer__close" type="button" onClick={onClose}>ЗАКРЫТЬ ×</button><img src={image} alt="Изображение проекта в полном размере" /></motion.div>; }
