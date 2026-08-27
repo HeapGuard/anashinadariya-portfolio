@@ -165,8 +165,8 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   };
   const openBehance = () => {
     haptic([14, 40, 18]);
-    window.open(behanceUrl, "_blank", "noopener,noreferrer");
     closeDetail("right");
+    window.setTimeout(() => window.location.assign(behanceUrl), 520);
   };
   const updateDetailSwipe = (offset: number) => {
     const threshold = window.innerWidth * 0.3;
