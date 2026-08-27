@@ -25,6 +25,12 @@ import dropCaseThree from "../images/DROP—NewspaperDesign/5.png";
 const navigation = ["ОБО МНЕ", "РАБОТЫ", "КОНТАКТЫ"];
 const behanceUrl = "https://www.behance.net/pegasy";
 
+function haptic(pattern: number | number[] = 12) {
+  if (window.matchMedia("(pointer: coarse)").matches && "vibrate" in navigator) {
+    navigator.vibrate(pattern);
+  }
+}
+
 type StackProjectProps = {
   children: ReactNode;
   className: string;
@@ -95,6 +101,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
   const openDetail = () => {
     stack.snapTo(index);
     stack.pulse();
+    haptic([10, 35, 14]);
     window.setTimeout(() => setIsOpen(true), 280);
   };
   const finishClose = () => {
@@ -110,10 +117,12 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
       finishClose();
     }
     stack.pulse();
+    haptic(12);
   };
   const openBehance = () => {
     setDetailExit("right");
     stack.pulse();
+    haptic([14, 40, 18]);
     window.open(behanceUrl, "_blank", "noopener,noreferrer");
     window.setTimeout(finishClose, 280);
   };
@@ -173,7 +182,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
               <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
               <div className="project-detail__gallery" aria-label="Галерея проекта" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
                 {detail.images.map((image, imageIndex) => (
-                  <button key={image} type="button" onClick={() => setFullscreenImage(image)} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
+                  <button key={image} type="button" onClick={() => { setFullscreenImage(image); haptic(16); }} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
                     <img src={image} alt="Фрагмент проекта" />
                     <span>{String(imageIndex + 1).padStart(2, "0")}</span>
                   </button>
@@ -185,7 +194,7 @@ function StackProject({ children, className, detail, index, labelledBy }: StackP
               </ul>
               <div className="project-detail__actions">
                 <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}>← ЗАКРЫТЬ</button>
-                <a href={behanceUrl} target="_blank" rel="noreferrer">BEHANCE ↗</a>
+                <a href={behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE ↗</a>
               </div>
             </motion.aside>
           )}
