@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { FiArrowUpRight, FiStar } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiArrowUpRight, FiStar, FiX } from "react-icons/fi";
 import calendar from "../../../images/ДИЗАЙН КАЛЕНДАРЯ/1.png";
 import corporate from "../../../images/CorporatePrint&DigitalDesign/1.png";
 import culture from "../../../images/InternalCultureDesignSet/1.png";
@@ -24,6 +24,9 @@ const works = [
 
 export function Catalog() {
   const sectionRef = useRef<HTMLElement>(null);
+  const openTimer = useRef<number | null>(null);
+  const [isOpening, setIsOpening] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -41,14 +44,46 @@ export function Catalog() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!isOpen && !isOpening) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [isOpen, isOpening]);
+
+  useEffect(() => () => {
+    if (openTimer.current) window.clearTimeout(openTimer.current);
+  }, []);
+
+  const openCatalog = () => {
+    if (isOpening || isOpen) return;
+    setIsOpening(true);
+    openTimer.current = window.setTimeout(() => {
+      setIsOpening(false);
+      setIsOpen(true);
+    }, 720);
+  };
+
+  const closeCatalog = () => setIsOpen(false);
+
   return (
     <section ref={sectionRef} id="catalog" className="catalog" aria-labelledby="catalog-title">
-      <div className="catalog__grain" aria-hidden="true" />
-      <header className="catalog__topline">
-        <p><span>01A</span> / COMPLETE INDEX</p>
-        <FiStar aria-hidden="true" />
-        <p>08 PROJECTS / 2026</p>
-      </header>
+      <button className="catalog__trigger" type="button" onClick={openCatalog} aria-haspopup="dialog">
+        <span>01A / COMPLETE INDEX</span>
+        <strong>ОТКРЫТЬ КАТАЛОГ</strong>
+        <FiArrowUpRight aria-hidden="true" />
+      </button>
+
+      {isOpening && <div className="catalog__opening" role="status" aria-live="polite"><p>ОТКРЫВАЮ<br />КАТАЛОГ...</p><FiStar aria-hidden="true" /></div>}
+
+      <div className={`catalog__fullscreen ${isOpen ? "catalog__fullscreen--open" : ""}`} role="dialog" aria-modal="true" aria-label="Каталог проектов" aria-hidden={!isOpen}>
+        <div className="catalog__grain" aria-hidden="true" />
+        <button className="catalog__close" type="button" onClick={closeCatalog} aria-label="Закрыть каталог"><FiX aria-hidden="true" /> <span>ЗАКРЫТЬ</span></button>
+        <header className="catalog__topline">
+          <p><span>01A</span> / COMPLETE INDEX</p>
+          <FiStar aria-hidden="true" />
+          <p>08 PROJECTS / 2026</p>
+        </header>
 
       <div className="catalog__heading">
         <p>ВСЕ РАБОТЫ<br />В ОДНОМ МЕСТЕ</p>
@@ -70,11 +105,12 @@ export function Catalog() {
         ))}
       </div>
 
-      <footer className="catalog__footer">
+        <footer className="catalog__footer">
         <img src={catBouquet} alt="" aria-hidden="true" loading="lazy" />
         <p>MORE PROJECTS<br />ON BEHANCE</p>
         <a href="https://www.behance.net/pegasy" target="_blank" rel="noreferrer">VIEW PROFILE <FiArrowUpRight aria-hidden="true" /></a>
-      </footer>
+        </footer>
+      </div>
     </section>
   );
 }
