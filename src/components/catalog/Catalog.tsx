@@ -27,6 +27,7 @@ export function Catalog() {
   const sectionRef = useRef<HTMLElement>(null);
   const openTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
+  const bodyOverflow = useRef<string | null>(null);
   const swipeStart = useRef<{ x: number; y: number; intent: "horizontal" | "vertical" | null } | null>(null);
   const [isOpening, setIsOpening] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -52,15 +53,21 @@ export function Catalog() {
   }, []);
 
   useEffect(() => {
-    if (!isOpen && !isOpening && !isClosing) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previousOverflow; };
-  }, [isOpen, isOpening]);
+    const shouldLock = isOpen || isOpening || isClosing;
+    if (shouldLock && bodyOverflow.current === null) {
+      bodyOverflow.current = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    }
+    if (!shouldLock && bodyOverflow.current !== null) {
+      document.body.style.overflow = bodyOverflow.current;
+      bodyOverflow.current = null;
+    }
+  }, [isOpen, isOpening, isClosing]);
 
   useEffect(() => () => {
     if (openTimer.current) window.clearTimeout(openTimer.current);
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    if (bodyOverflow.current !== null) document.body.style.overflow = bodyOverflow.current;
   }, []);
 
   const openCatalog = () => {
