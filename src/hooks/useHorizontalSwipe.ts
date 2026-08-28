@@ -34,7 +34,7 @@ export function useHorizontalSwipe({ enabled, onComplete, edge = "none", edgeZon
     const current = options.current;
     if (!current.enabled || event.pointerType === "mouse" || !event.isPrimary) return;
     const edgeZone = current.edgeZoneRatio
-      ? Math.min(96, Math.max(32, window.innerWidth * current.edgeZoneRatio))
+      ? Math.min(160, Math.max(32, window.innerWidth * current.edgeZoneRatio))
       : 32;
     const fromLeft = event.clientX <= edgeZone;
     const fromRight = event.clientX >= window.innerWidth - edgeZone;
