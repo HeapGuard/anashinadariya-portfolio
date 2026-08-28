@@ -101,6 +101,14 @@ p {
 .swipe-guide span:first-child { color: var(--orange); }.swipe-guide span:last-child { color: #73d69b; }
 .swipe-guide svg { width: 1.25em; height: 1.25em; }
 @keyframes swipe-guide-in { 0% { opacity: 0; transform: translate(-50%, 16px) scale(.94); } 10%, 87% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -8px) scale(.98); } }
+@media (max-width: 760px) {
+  .swipe-guide {
+    width: min(calc(100vw - 24px), 20rem);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .7em;
+  }
+}
 
 .behance-confirm {
   position: fixed;
