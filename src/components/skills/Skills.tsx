@@ -9,6 +9,8 @@ const tools = [
   { index: "04", Icon: SiFigma, name: "FIGMA" },
 ];
 
+const expertise = ["BRANDING", "IDENTITY", "TYPOGRAPHY", "EDITORIAL", "PRINT", "PACKAGING", "INFOGRAPHICS", "ADVERTISING", "RETOUCH", "COLLAGE"];
+
 export function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -87,13 +89,11 @@ export function Skills() {
           <p>10 DIRECTIONS<br />ONE VISUAL SYSTEM</p>
         </div>
 
-        <div className="skills__composition" aria-label="Направления работы">
-          <div className="skills__line skills__line--one"><span>BRANDING</span></div>
-          <div className="skills__line skills__line--two"><span>IDENTITY</span><span>TYPOGRAPHY</span></div>
-          <div className="skills__line skills__line--three"><span>EDITORIAL</span><span>PRINT</span><span>PACKAGING</span></div>
-          <div className="skills__line skills__line--four"><span>INFOGRAPHICS</span></div>
-          <div className="skills__line skills__line--five"><span>ADVERTISING</span><span>RETOUCH</span><span>COLLAGE</span></div>
-        </div>
+        <ol className="skills__index" aria-label="Направления работы">
+          {expertise.map((item, index) => (
+            <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>
+          ))}
+        </ol>
 
         <div className="skills__expertise-footer">
           <p>GRAPHIC / COMMUNICATION / EDITORIAL</p>

@@ -1,11 +1,24 @@
+import { useEffect, useRef } from "react";
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
 import { FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
 import { heroAssets, navigation } from "../../data/portfolio";
 
 export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean; onToggleMenu: () => void }) {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      section.classList.toggle("hero--away", entry.intersectionRatio < 0.25);
+    }, { threshold: [0, 0.25] });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-      <section className="hero" aria-labelledby="hero-title">
+      <section ref={sectionRef} id="top" className="hero" aria-labelledby="hero-title">
         <header className="hero-header">
           <a
             className="hero-name"
@@ -21,8 +34,8 @@ export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean
             aria-label="Основная навигация"
           >
             {navigation.map((item, index) => (
-              <a href="#works" key={item}>
-                0{index + 1} / {item}
+              <a href={item.href} key={item.label} onClick={mobileMenuOpen ? onToggleMenu : undefined}>
+                0{index + 1} / {item.label}
               </a>
             ))}
           </nav>
@@ -38,7 +51,7 @@ export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean
           </button>
           <p className="hero-index">[ 01 — 01 ]</p>
         </header>
-        <div className="hero-layout" id="top">
+        <div className="hero-layout">
           <div className="hero-copy">
             <p className="hero-location">МОСКВА / 2026</p>
             <h1 id="hero-title" className="hero-title">
@@ -54,7 +67,7 @@ export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean
             <p className="hero-categories">
               БРЕНДИНГ • EDITORIAL • ПЕЧАТЬ • DIGITAL
             </p>
-            <a className="hero-cta" href="#works">
+            <a className="hero-cta" href="#selected-works">
               СМОТРЕТЬ РАБОТЫ <FiArrowUpRight aria-hidden="true" />
             </a>
             <aside className="mobile-socials" aria-label="Связаться с Дарьей">
@@ -88,7 +101,7 @@ export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean
           </figure>
           <section
             className="work-collage"
-            id="works"
+            id="hero-work-preview"
             aria-label="Избранные работы"
           >
             <article className="work-piece work-piece--solar">

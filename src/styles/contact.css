@@ -53,9 +53,12 @@
 
 .contact__poster {
   position: relative;
-  min-height: clamp(650px, 69vw, 1060px);
+  min-height: clamp(590px, 57vw, 875px);
   padding-top: clamp(30px, 4vw, 68px);
+  transition: scale .6s cubic-bezier(.18, .8, .23, 1), filter .6s ease;
+  will-change: scale;
 }
+.contact--away .contact__poster { scale: .974; filter: saturate(.94); }
 
 .contact__title {
   position: relative;
@@ -84,7 +87,7 @@
 .contact__cta {
   position: absolute;
   z-index: 5;
-  top: 45%;
+  top: 40%;
   right: 3%;
   display: flex;
   align-items: center;
@@ -165,7 +168,7 @@
 
 .contact__note {
   position: absolute;
-  bottom: 28%;
+  bottom: 31%;
   left: 0;
   font-family: var(--font-pixel);
   font-size: clamp(.39rem, .35rem + .1vw, .52rem);
@@ -235,7 +238,7 @@
 .contact--revealed .contact__footer { transition-delay: .44s; }
 
 @media (max-width: 900px) {
-  .contact__poster { min-height: clamp(720px, 106vw, 900px); }
+  .contact__poster { min-height: clamp(650px, 92vw, 820px); }
   .contact__cta { top: 43%; width: min(45%, 420px); }
   .contact__list { bottom: 7%; }
 }
@@ -268,7 +271,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .contact__cta,
-  .contact__item a { transition: none; }
+  .contact__item a,
+  .contact__poster,
+  .hero-layout { transition: none; }
 }
 
 @supports not (overflow: clip) {

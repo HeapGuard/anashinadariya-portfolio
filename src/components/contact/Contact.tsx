@@ -20,10 +20,9 @@ export function Contact() {
     }
 
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      section.classList.add("contact--revealed");
-      observer.disconnect();
-    }, { threshold: 0.1, rootMargin: "0px 0px -7%" });
+      if (entry.isIntersecting) section.classList.add("contact--revealed");
+      section.classList.toggle("contact--away", entry.intersectionRatio < 0.25);
+    }, { threshold: [0, 0.1, 0.25], rootMargin: "0px 0px -7%" });
 
     observer.observe(section);
     return () => observer.disconnect();

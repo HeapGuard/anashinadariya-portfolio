@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FaBehance } from "react-icons/fa";
 import { AnimatePresence, motion, useTransform } from "framer-motion";
-import { behanceUrl, type ProjectDetail } from "../../data/portfolio";
+import { type ProjectDetail } from "../../data/portfolio";
 import { haptic } from "../../hooks/useHaptic";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useStackContext } from "./StackStage";
@@ -98,7 +98,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
   const openBehance = () => {
     haptic([14, 40, 18]);
     closeDetail("right");
-    window.setTimeout(() => window.location.assign(behanceUrl), 520);
+    window.setTimeout(() => window.open(detail.behanceUrl, "_blank", "noopener,noreferrer"), 520);
   };
   const updateDetailSwipe = (offset: number) => {
     const threshold = window.innerWidth * 0.3;
@@ -281,7 +281,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
               </ul>
               <div className="project-detail__actions">
                 <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}>← ЗАКРЫТЬ</button>
-                <a href={behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE ↗</a>
+                <a href={detail.behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE ↗</a>
               </div>
             </motion.aside>
           </div>

@@ -1,11 +1,5 @@
-import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { FaBehance, FaTelegramPlane } from "react-icons/fa";
-import { FiArrowUpRight } from "react-icons/fi";
-import { HiOutlineMail } from "react-icons/hi";
-import { AnimatePresence, motion, type MotionValue, useScroll, useSpring, useTransform } from "framer-motion";
-import { StackStage } from "./components/selected-works/StackStage";
-import { StackProject } from "./components/selected-works/StackProject";
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { Hero } from "./components/hero/Hero";
 import { SelectedWorks } from "./components/selected-works/SelectedWorks";
 import { Experience } from "./components/experience/Experience";
@@ -15,26 +9,7 @@ import { Skills } from "./components/skills/Skills";
 import { Contact } from "./components/contact/Contact";
 import { SiteLoader } from "./components/layout/SiteLoader";
 import { CompactHeader } from "./components/layout/SiteNavigation";
-import { navigation, preloadedImages } from "./data/portfolio";
-import avatar from "../images/dasha-avatar.jpg";
-import roam from "../images/ROAM—TravelMagazineDesign/preview/1.png";
-import drop from "../images/DROP—NewspaperDesign/preview/1.png";
-import solar from "../images/SOLAR ADVENTURES/preview/1.png";
-import corporate from "../images/CorporatePrint&DigitalDesign/preview/1.png";
-import avatarCat from "../images/котики на фон/hero-cat-on-avatar.png";
-import theatre from "../images/ТЕАТРАЛЬНАЯ ПЬЕСА/1.png";
-import solarCaseOne from "../images/SOLAR ADVENTURES/1.png";
-import solarCaseTwo from "../images/SOLAR ADVENTURES/2.png";
-import theatreCase from "../images/ТЕАТРАЛЬНАЯ ПЬЕСА/1.png";
-import roamCaseOne from "../images/ROAM—TravelMagazineDesign/1.png";
-import roamCaseTwo from "../images/ROAM—TravelMagazineDesign/2.png";
-import roamCaseThree from "../images/ROAM—TravelMagazineDesign/4.png";
-import roamCaseFour from "../images/ROAM—TravelMagazineDesign/7.png";
-import dropCaseOne from "../images/DROP—NewspaperDesign/1.png";
-import dropCaseTwo from "../images/DROP—NewspaperDesign/3.png";
-import dropCaseThree from "../images/DROP—NewspaperDesign/5.png";
-
-const behanceUrl = "https://www.behance.net/pegasy";
+import { preloadedImages } from "./data/portfolio";
  
 
 function App() {
@@ -76,6 +51,18 @@ function App() {
       document.body.style.overflow = previousOverflow;
     };
   }, [assetsLoaded]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && setMobileMenuOpen(false);
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     if (!assetsLoaded) return;
