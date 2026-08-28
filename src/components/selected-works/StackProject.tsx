@@ -10,6 +10,7 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useFirstOpenHint } from "../../hooks/useFirstOpenHint";
 import { useStackContext } from "./StackStage";
 import { SwipeGuide } from "../interaction/SwipeGuide";
+import { BehanceConfirmDialog } from "../interaction/BehanceConfirmDialog";
 
 type StackProjectProps = { children: ReactNode; className: string; detail: ProjectDetail; index: number; labelledBy: string; };
 
@@ -22,12 +23,15 @@ export function StackProject({ children, className, detail, index, labelledBy }:
   const [detailExit, setDetailExit] = useState<"left" | "right" | null>(null);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [pendingBehanceUrl, setPendingBehanceUrl] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 760px)");
-  const showSwipeGuide = useFirstOpenHint("project-detail-swipe", isOpen && detailExpanded);
+  const isPhone = useMediaQuery("(pointer: coarse) and (max-width: 760px)");
+  const showSwipeGuide = useFirstOpenHint("project-detail-swipe", isOpen && detailExpanded && isPhone);
   const detailOpenTimer = useRef<number | null>(null);
   const detailExpandTimer = useRef<number | null>(null);
   const detailCollapseTimer = useRef<number | null>(null);
   const detailExitTimer = useRef<number | null>(null);
+  const behanceTimer = useRef<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLElement | null>(null);
   const galleryImages = detail.images.slice(0, 5);
@@ -100,7 +104,8 @@ export function StackProject({ children, className, detail, index, labelledBy }:
   const openBehance = (direction: "left" | "right" = "right", preserveSwipe = false) => {
     haptic([14, 40, 18]);
     closeDetail(direction, preserveSwipe);
-    window.setTimeout(() => window.open(detail.behanceUrl, "_blank", "noopener,noreferrer"), 520);
+    if (behanceTimer.current) window.clearTimeout(behanceTimer.current);
+    behanceTimer.current = window.setTimeout(() => setPendingBehanceUrl(detail.behanceUrl), 620);
   };
   const goToSlide = (slideIndex: number) => {
     const nextIndex = Math.max(0, Math.min(slideIndex, galleryImages.length - 1));
@@ -158,7 +163,8 @@ export function StackProject({ children, className, detail, index, labelledBy }:
   }, [isAlignmentLocked, isOpen, isOpening]);
 
   return (
-    <div className="project-stack-slot">
+    <>
+      <div className="project-stack-slot">
       <motion.article
         ref={cardRef}
         className={`project ${className} ${isOpen ? "project--detail-open" : ""}`}
@@ -228,7 +234,9 @@ export function StackProject({ children, className, detail, index, labelledBy }:
         </AnimatePresence>,
         cardRef.current,
       )}
-    </div>
+      </div>
+      <BehanceConfirmDialog href={pendingBehanceUrl} onCancel={() => setPendingBehanceUrl(null)} />
+    </>
   );
 }
 

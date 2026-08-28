@@ -6,7 +6,9 @@ import { behanceUrl, catalogWorks } from "../../data/portfolio";
 import { useHorizontalSwipe } from "../../hooks/useHorizontalSwipe";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFirstOpenHint } from "../../hooks/useFirstOpenHint";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { SwipeGuide } from "../interaction/SwipeGuide";
+import { BehanceConfirmDialog } from "../interaction/BehanceConfirmDialog";
 import catSleep from "../../../images/котики на фон/hero-cat-sleep.png";
 import catBouquet from "../../../images/котики на фон/hero-cat-bouquet.png";
 
@@ -17,8 +19,10 @@ export function Catalog() {
   const [isOpening, setIsOpening] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [pendingBehanceUrl, setPendingBehanceUrl] = useState<string | null>(null);
+  const isPhone = useMediaQuery("(pointer: coarse) and (max-width: 760px)");
   useBodyScrollLock(isOpen || isOpening || isClosing);
-  const showSwipeGuide = useFirstOpenHint("catalog-swipe", isOpen);
+  const showSwipeGuide = useFirstOpenHint("catalog-swipe", isOpen && isPhone);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -75,10 +79,10 @@ export function Catalog() {
     if (!fromSwipe) catalogSwipe.reset();
     setIsOpen(false);
     setIsClosing(true);
-    window.setTimeout(() => window.open(behanceUrl, "_blank", "noopener,noreferrer"), 480);
     closeTimer.current = window.setTimeout(() => {
       setIsClosing(false);
       catalogSwipe.reset();
+      setPendingBehanceUrl(behanceUrl);
     }, 620);
   };
 
@@ -150,6 +154,7 @@ export function Catalog() {
         </button>
       </section>
       {(isOpening || isOpen || isClosing) && createPortal(catalogScreen, document.body)}
+      <BehanceConfirmDialog href={pendingBehanceUrl} onCancel={() => setPendingBehanceUrl(null)} />
     </>
   );
 }

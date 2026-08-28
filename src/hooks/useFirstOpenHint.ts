@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const shownHints = new Set<string>();
 
-export function useFirstOpenHint(key: string, active: boolean, duration = 1800) {
+export function useFirstOpenHint(key: string, active: boolean, duration = 3000) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     if (!active || shownHints.has(key)) return;
