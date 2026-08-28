@@ -30,8 +30,11 @@ export type Project = {
 export type SocialLink = { label: string; href: string; kind: "behance" | "telegram" | "mail" };
 
 export const navigation = [
-  { label: "ОБО МНЕ", href: "#about" },
   { label: "РАБОТЫ", href: "#selected-works" },
+  { label: "ОПЫТ", href: "#experience" },
+  { label: "НАГРАДА", href: "#award" },
+  { label: "ОБО МНЕ", href: "#about" },
+  { label: "НАВЫКИ", href: "#skills" },
   { label: "КОНТАКТЫ", href: "#contact" },
 ];
 export const behanceUrl = "https://www.behance.net/pegasy";

@@ -145,7 +145,7 @@
 .award__cat {
   position: absolute;
   z-index: 1;
-  bottom: clamp(54px, 8vw, 126px);
+  bottom: clamp(12px, 2.5vw, 42px);
   left: 50%;
   width: clamp(88px, 10vw, 168px);
   pointer-events: none;
@@ -216,7 +216,7 @@
   .award__description { order: 4; max-width: 30rem; padding-right: 0; font-size: clamp(.94rem, 4vw, 1.13rem); }
   .award__description span:nth-child(2) { max-width: 96%; }
   .award__description br { display: none; }
-  .award__cat { display: block; bottom: 8%; left: -15%; width: 34%; transform: translate(var(--award-cat-x, 0px), var(--award-cat-y, 0px)) rotate(-8deg); }
+  .award__cat { display: block; bottom: 1%; left: -15%; width: 34%; transform: translate(var(--award-cat-x, 0px), var(--award-cat-y, 0px)) rotate(-8deg); }
   .award__visual { position: relative; right: auto; bottom: auto; left: auto; width: 100%; transform: translateY(72px) rotate(2.5deg) scale(.92); }
   .award--revealed .award__visual { animation-name: award-podium-enter-mobile; }
   .award__location { position: relative; z-index: 3; right: auto; bottom: auto; left: auto; grid-column: auto; order: 5; align-self: flex-end; width: min(76%, 260px); margin: 4px 0 0; }
