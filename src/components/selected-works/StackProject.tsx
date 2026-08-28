@@ -78,11 +78,13 @@ export function StackProject({ children, className, detail, index, labelledBy }:
     setSwipeReady(false);
     setSwipeProgress(0);
   };
-  const closeDetail = (direction: "left" | "right" = "left") => {
-    setDragOffset(0);
-    setDragRotate(0);
-    setSwipeDirection(null);
-    setSwipeReady(false);
+  const closeDetail = (direction: "left" | "right" = "left", preserveSwipe = false) => {
+    if (!preserveSwipe) {
+      setDragOffset(0);
+      setDragRotate(0);
+      setSwipeDirection(null);
+      setSwipeReady(false);
+    }
     const exit = () => {
       setDetailExit(direction);
       detailExitTimer.current = window.setTimeout(finishClose, 340);
@@ -96,9 +98,9 @@ export function StackProject({ children, className, detail, index, labelledBy }:
     stack.pulse();
     haptic(12);
   };
-  const openBehance = (direction: "left" | "right" = "right") => {
+  const openBehance = (direction: "left" | "right" = "right", preserveSwipe = false) => {
     haptic([14, 40, 18]);
-    closeDetail(direction);
+    closeDetail(direction, preserveSwipe);
     window.setTimeout(() => window.open(detail.behanceUrl, "_blank", "noopener,noreferrer"), 520);
   };
   const updateDetailSwipe = (offset: number) => {
@@ -118,8 +120,8 @@ export function StackProject({ children, className, detail, index, labelledBy }:
       setSwipeProgress(0);
       return;
     }
-    if (offset > 0) closeDetail("right");
-    else openBehance("left");
+    if (offset > 0) closeDetail("right", true);
+    else openBehance("left", true);
   };
   const startDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
     if (!isMobile || !detailExpanded || !event.isPrimary) return;
@@ -238,7 +240,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
           document.body,
         )}
       </motion.article>
-      {isOpen && createPortal(
+      {isOpen && cardRef.current && createPortal(
         <AnimatePresence>
           <div className="project-detail-layer">
             {isMobile && detailExpanded && swipeDirection && (
@@ -280,14 +282,14 @@ export function StackProject({ children, className, detail, index, labelledBy }:
               <ul className="project-detail__tags">
                 {detail.tags.map((tag) => <li key={tag}>{tag}</li>)}
               </ul>
-              <div className="project-detail__actions">
-                <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}><FiArrowLeft aria-hidden="true" /> ЗАКРЫТЬ</button>
-                <a href={detail.behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE <FiArrowUpRight aria-hidden="true" /></a>
+              <div className="project-detail__actions" onPointerDown={(event) => event.stopPropagation()}>
+                <button className="project-detail__close" type="button" onClick={(event) => { event.stopPropagation(); closeDetail("left"); }}><FiArrowLeft aria-hidden="true" /> ЗАКРЫТЬ</button>
+                <a href={detail.behanceUrl} target="_blank" rel="noreferrer" onClick={(event) => { event.stopPropagation(); haptic([14, 40, 18]); }}>BEHANCE <FiArrowUpRight aria-hidden="true" /></a>
               </div>
             </motion.aside>
           </div>
         </AnimatePresence>,
-        document.body,
+        cardRef.current,
       )}
     </div>
   );
