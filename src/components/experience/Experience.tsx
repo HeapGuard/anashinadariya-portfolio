@@ -1,3 +1,6 @@
+import { useEffect, useRef } from "react";
+import { FiStar } from "react-icons/fi";
+
 const practices = [
   {
     className: "experience-entry--radcop",
@@ -47,10 +50,10 @@ export function Experience() {
       <div className="experience__grain" aria-hidden="true" />
       <header className="experience__header experience__grid" data-experience-reveal>
         <p className="experience__eyebrow"><span>02</span> / COMMERCIAL PRACTICE</p>
-        <div className="experience__compass" aria-hidden="true">✦</div>
+        <FiStar className="experience__compass" aria-hidden="true" />
         <p className="experience__corner-label">SELECTED<br />POSITIONS</p>
         <h2 id="experience-title">EXPERIENCE</h2>
-        <div className="experience__rule" aria-hidden="true"><span>✶</span></div>
+        <div className="experience__rule" aria-hidden="true"><FiStar /></div>
       </header>
 
       <div className="experience__entries">
@@ -84,4 +87,3 @@ export function Experience() {
     </section>
   );
 }
-import { useEffect, useRef } from "react";

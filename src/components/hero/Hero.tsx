@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { FaBehance, FaTelegramPlane } from "react-icons/fa";
-import { FiArrowUpRight } from "react-icons/fi";
+import { FiArrowDown, FiArrowUpRight } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
 import { heroAssets, navigation } from "../../data/portfolio";
 
@@ -129,7 +129,7 @@ export function Hero({ mobileMenuOpen, onToggleMenu }: { mobileMenuOpen: boolean
             </article>
           </section>
         </div>
-        <p className="hero-scroll">SCROLL TO EXPLORE ↓</p>
+        <p className="hero-scroll">SCROLL TO EXPLORE <FiArrowDown aria-hidden="true" /></p>
       </section>
   );
 }

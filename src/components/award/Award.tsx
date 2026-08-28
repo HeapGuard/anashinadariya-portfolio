@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { FiArrowRight, FiStar } from "react-icons/fi";
 import awardPodium from "../../../images/dasha-winner.png";
 import flowerCat from "../../../images/котики на фон/hero-cat-flower.png";
 
@@ -56,7 +57,7 @@ export function Award() {
 
       <header className="award__topline">
         <p><span>03</span> / AWARD &amp; RECOGNITION</p>
-        <span className="award__star" aria-hidden="true">✦</span>
+        <FiStar className="award__star" aria-hidden="true" />
         <p>TOMSK REGION / 2025</p>
       </header>
 
@@ -92,7 +93,7 @@ export function Award() {
         </div>
 
         <div className="award__location">
-          <span>→</span>
+          <FiArrowRight aria-hidden="true" />
           <p>МЕЖРЕГИОНАЛЬНЫЙ ЭТАП<br /><strong>САРАНСК</strong></p>
         </div>
 

@@ -33,9 +33,10 @@
 .experience__eyebrow { grid-column: 1 / span 4; margin: 0; }
 .experience__eyebrow span { color: var(--blue); }
 .experience__corner-label { grid-column: 11 / -1; justify-self: end; margin: 0; text-align: right; }
-.experience__compass { position: absolute; top: -5px; left: 49%; color: var(--blue); font-size: clamp(1.35rem, 2vw, 2rem); transform: rotate(-16deg); }
+.experience__compass { position: absolute; top: -5px; left: 49%; width: clamp(1.35rem, 2vw, 2rem); height: clamp(1.35rem, 2vw, 2rem); color: var(--blue); transform: rotate(-16deg); }
 .experience__header h2 { grid-column: 1 / -1; margin: clamp(24px, 4vw, 62px) 0 clamp(12px, 1.5vw, 26px); color: var(--blue); font-family: var(--font-display); font-size: clamp(3.5rem, 10.8vw, 11.5rem); font-weight: 400; line-height: .76; letter-spacing: -.085em; }
 .experience__rule { grid-column: 1 / -1; display: flex; align-items: center; gap: 13px; border-top: 1px solid currentColor; padding-top: 8px; font-family: var(--font-pixel); font-size: .62rem; }
+.experience__rule svg { width: 1em; height: 1em; }
 
 .experience__entries { margin-top: clamp(34px, 5vw, 82px); }
 .experience-entry { position: relative; min-height: clamp(220px, 24vw, 390px); align-items: start; padding-block: clamp(24px, 2.3vw, 38px); border-top: 1px solid rgba(17, 17, 17, .84); }

@@ -50,7 +50,7 @@
 
 .about__topline p:last-child { text-align: right; }
 .about__topline p:first-child span { color: var(--orange); }
-.about__asterisk { color: var(--blue); font-size: 1.6em; }
+.about__asterisk { width: 1.6em; height: 1.6em; color: var(--blue); }
 
 .about__poster {
   position: relative;
@@ -202,6 +202,7 @@
   font-family: var(--font-pixel);
   font-size: clamp(.4rem, .36rem + .1vw, .54rem);
 }
+.about__interests-title svg { width: 1em; height: 1em; vertical-align: -.15em; }
 
 .about__tag {
   display: inline-block;

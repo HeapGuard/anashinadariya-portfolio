@@ -151,6 +151,7 @@
 
 .project-detail__gallery-nav--prev { left: 10px; }
 .project-detail__gallery-nav--next { right: 10px; }
+.project-detail__gallery-nav svg { width: 1.2em; height: 1.2em; }
 
 .project-detail__pagination {
   display: flex;
@@ -242,6 +243,7 @@
   text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease;
 }
+.project-detail__actions svg { width: 1.05em; height: 1.05em; flex: 0 0 auto; }
 
 .project-detail__actions > * + * {
   justify-content: flex-end;

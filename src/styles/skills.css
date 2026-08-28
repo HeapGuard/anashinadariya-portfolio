@@ -42,7 +42,7 @@
 
 .skills__topline p:last-child { text-align: right; }
 .skills__topline p:first-child span,
-.skills__topline > span { color: var(--yellow); }
+.skills__topline > svg { width: 1.2em; height: 1.2em; color: var(--yellow); }
 
 .skills__heading {
   display: grid;
@@ -126,8 +126,8 @@
   top: clamp(14px, 1.4vw, 23px);
   right: clamp(14px, 1.4vw, 23px);
   color: var(--orange);
-  font-family: var(--font-pixel);
-  font-size: clamp(.8rem, 1.4vw, 1.3rem);
+  width: clamp(.8rem, 1.4vw, 1.3rem);
+  height: clamp(.8rem, 1.4vw, 1.3rem);
 }
 
 .skills__expertise {
@@ -192,17 +192,19 @@
   align-items: baseline;
   gap: clamp(10px, 1.2vw, 20px);
   min-width: 0;
-  padding: clamp(11px, 1.4vw, 23px) 0;
+  padding: clamp(11px, 1.4vw, 23px) clamp(10px, 1.4vw, 24px);
   border-bottom: 1px solid currentColor;
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 3vw, 4.1rem);
   font-weight: 400;
   line-height: .85;
   letter-spacing: -.055em;
-  transition: transform .35s cubic-bezier(.2, .8, .2, 1), color .25s ease;
+  background: rgba(255, 184, 23, .78);
+  box-shadow: 0 0 0 1px rgba(17, 17, 17, .82);
+  transition: transform .35s cubic-bezier(.2, .8, .2, 1), color .25s ease, box-shadow .35s ease;
 }
-.skills__index li:nth-child(odd) { padding-right: clamp(12px, 2vw, 36px); }
-.skills__index li:nth-child(even) { padding-left: clamp(12px, 2vw, 36px); border-left: 1px solid currentColor; color: var(--blue); }
+.skills__index li:nth-child(odd) { margin-right: clamp(8px, 1.2vw, 22px); }
+.skills__index li:nth-child(even) { margin-left: clamp(8px, 1.2vw, 22px); color: var(--blue); }
 .skills__index li:nth-child(3n) { color: var(--paper); }
 .skills__index li:nth-child(2),
 .skills__index li:nth-child(3),
@@ -210,14 +212,24 @@
 .skills__index li:nth-child(7),
 .skills__index li:nth-child(10) {
   z-index: 1;
-  transform: translateX(clamp(7px, 1.2vw, 22px));
-  text-shadow: 5px 5px 0 rgba(17, 17, 17, .18);
+  transform: translate(clamp(7px, 1.2vw, 22px), clamp(-8px, -.55vw, -4px));
+  box-shadow: clamp(7px, 1vw, 17px) clamp(8px, 1.2vw, 19px) 0 rgba(17, 17, 17, .82), 0 0 0 1px rgba(17, 17, 17, .9);
 }
+.skills__index li:nth-child(2)::before,
+.skills__index li:nth-child(3)::before,
+.skills__index li:nth-child(6)::before,
+.skills__index li:nth-child(7)::before,
+.skills__index li:nth-child(10)::before { content: ""; position: absolute; top: -8px; left: 4px; right: -8px; height: 8px; background: var(--yellow); clip-path: polygon(0 100%, 100% 100%, calc(100% - 8px) 0, 8px 0); }
+.skills__index li:nth-child(2)::after,
+.skills__index li:nth-child(3)::after,
+.skills__index li:nth-child(6)::after,
+.skills__index li:nth-child(7)::after,
+.skills__index li:nth-child(10)::after { content: ""; position: absolute; top: -8px; right: -8px; bottom: 0; width: 8px; background: var(--black); clip-path: polygon(0 0, 100% 8px, 100% 100%, 0 calc(100% - 8px)); }
 .skills__index li:nth-child(4),
 .skills__index li:nth-child(5),
 .skills__index li:nth-child(8),
 .skills__index li:nth-child(9) { transform: translateX(0); }
-.skills__index li:hover { color: var(--black); transform: translateX(clamp(3px, .55vw, 10px)); }
+.skills__index li:hover { color: var(--black); transform: translate(3px, -4px); box-shadow: 8px 10px 0 rgba(17, 17, 17, .82), 0 0 0 1px rgba(17, 17, 17, .9); }
 .skills__index li span {
   flex: 0 0 auto;
   color: var(--black);
@@ -282,14 +294,14 @@
   .skills__expertise-head h3 { font-size: clamp(2.8rem, 14vw, 4.8rem); }
   .skills__expertise-head p { text-align: left; }
   .skills__index { margin: 16px 0; }
-  .skills__index li { gap: 7px; padding-top: 10px; padding-bottom: 10px; font-size: clamp(1.02rem, 5.7vw, 1.7rem); line-height: .9; }
-  .skills__index li:nth-child(odd) { padding-right: 8px; }
-  .skills__index li:nth-child(even) { padding-left: 8px; }
+  .skills__index li { gap: 7px; padding: 10px 8px; font-size: clamp(1.02rem, 5.7vw, 1.7rem); line-height: .9; }
+  .skills__index li:nth-child(odd) { margin-right: 5px; }
+  .skills__index li:nth-child(even) { margin-left: 5px; }
   .skills__index li:nth-child(2),
   .skills__index li:nth-child(3),
   .skills__index li:nth-child(6),
   .skills__index li:nth-child(7),
-  .skills__index li:nth-child(10) { transform: translateX(8px); }
+  .skills__index li:nth-child(10) { transform: translate(8px, -5px); box-shadow: 7px 8px 0 rgba(17, 17, 17, .82), 0 0 0 1px rgba(17, 17, 17, .9); }
   .skills__expertise-footer { align-items: flex-start; flex-direction: column; gap: 6px; padding-top: 12px; }
 }
 

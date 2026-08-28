@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
+import { FiArrowUp, FiArrowUpRight, FiPlus, FiStar } from "react-icons/fi";
 import { behanceUrl, mailUrl, telegramUrl } from "../../data/portfolio";
 
 const contacts = [
   { label: "EMAIL", value: "pegas915@gmail.com", href: mailUrl },
   { label: "TELEGRAM", value: "@pegasy8", href: telegramUrl },
-  { label: "BEHANCE", value: "VIEW PROFILE ↗", href: behanceUrl },
+  { label: "BEHANCE", value: "VIEW PROFILE", href: behanceUrl, external: true },
 ];
 
 export function Contact() {
@@ -34,13 +35,13 @@ export function Contact() {
 
       <header className="contact__topline">
         <p><span>06</span> / LET&apos;S MAKE SOMETHING</p>
-        <span aria-hidden="true">✦</span>
+        <FiStar aria-hidden="true" />
         <p>OPEN FOR PROJECTS / 2026</p>
       </header>
 
       <div className="contact__poster">
-        <span className="contact__register contact__register--one" aria-hidden="true">+</span>
-        <span className="contact__register contact__register--two" aria-hidden="true">+</span>
+        <FiPlus className="contact__register contact__register--one" aria-hidden="true" />
+        <FiPlus className="contact__register contact__register--two" aria-hidden="true" />
 
         <h2 id="contact-title" className="contact__title">
           <span>ЕСТЬ</span>
@@ -49,7 +50,7 @@ export function Contact() {
 
         <a className="contact__cta" href={mailUrl}>
           <span>НАПИСАТЬ МНЕ</span>
-          <span aria-hidden="true">↗</span>
+          <FiArrowUpRight aria-hidden="true" />
         </a>
 
         <div className="contact__list" aria-label="Контакты">
@@ -61,7 +62,7 @@ export function Contact() {
                 target={contact.href.startsWith("http") ? "_blank" : undefined}
                 rel={contact.href.startsWith("http") ? "noreferrer" : undefined}
               >
-                {contact.value}
+                {contact.value}{contact.external && <FiArrowUpRight aria-hidden="true" />}
               </a>
             </div>
           ))}
@@ -73,7 +74,7 @@ export function Contact() {
       <footer className="contact__footer">
         <p>DARIA ANASHINA<br /><span>GRAPHIC DESIGNER</span></p>
         <p>MOSCOW / 2026</p>
-        <a href="#top">↑ BACK TO TOP</a>
+        <a href="#top"><FiArrowUp aria-hidden="true" /> BACK TO TOP</a>
       </footer>
     </section>
   );

@@ -58,7 +58,7 @@
 .award__topline p { margin: 0; }
 .award__topline p:first-child span { color: var(--yellow); }
 .award__topline p:last-child { justify-self: end; }
-.award__star { color: var(--blue); font-size: clamp(1.25rem, 2vw, 2rem); }
+.award__star { color: var(--blue); width: clamp(1.25rem, 2vw, 2rem); height: clamp(1.25rem, 2vw, 2rem); }
 
 .award__title-wrap { padding-top: clamp(42px, 6vw, 96px); }
 .award__title {
@@ -181,7 +181,7 @@
   transform: rotate(.45deg);
 }
 
-.award__location span { color: var(--yellow); font-size: 1.2rem; }
+.award__location > svg { flex: 0 0 auto; width: 1.2rem; height: 1.2rem; color: var(--yellow); }
 .award__location p { margin: 0; font-family: var(--font-pixel); font-size: clamp(.43rem, .39rem + .12vw, .62rem); line-height: 1.7; }
 .award__location strong { color: var(--yellow); font-weight: inherit; }
 .award__edition { position: absolute; right: 0; bottom: clamp(24px, 3vw, 50px); margin: 0; text-align: right; font-family: var(--font-pixel); font-size: clamp(.4rem, .36rem + .1vw, .54rem); line-height: 1.65; }

@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FaBehance } from "react-icons/fa";
+import { FiArrowLeft, FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 import { AnimatePresence, motion, useTransform } from "framer-motion";
 import { type ProjectDetail } from "../../data/portfolio";
 import { haptic } from "../../hooks/useHaptic";
@@ -261,7 +262,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
             >
               <p className="project-detail__eyebrow">[ PROJECT NOTES / 2026 ]</p>
               <div className="project-detail__gallery-wrap">
-                <button className="project-detail__gallery-nav project-detail__gallery-nav--prev" type="button" onClick={() => goToSlide(activeSlide - 1)} disabled={activeSlide === 0} aria-label="Предыдущее изображение">←</button>
+                <button className="project-detail__gallery-nav project-detail__gallery-nav--prev" type="button" onClick={() => goToSlide(activeSlide - 1)} disabled={activeSlide === 0} aria-label="Предыдущее изображение"><FiArrowLeft aria-hidden="true" /></button>
                 <div ref={galleryRef} className="project-detail__gallery" aria-label="Галерея проекта" onScroll={updateActiveSlide} onPointerDown={(event) => event.stopPropagation()} onPointerMove={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
                   {galleryImages.map((image, imageIndex) => (
                     <button key={image} type="button" onClick={() => { setFullscreenImage(image); haptic(16); }} aria-label={`Открыть изображение ${imageIndex + 1} на весь экран`}>
@@ -270,7 +271,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
                     </button>
                   ))}
                 </div>
-                <button className="project-detail__gallery-nav project-detail__gallery-nav--next" type="button" onClick={() => goToSlide(activeSlide + 1)} disabled={activeSlide === galleryImages.length - 1} aria-label="Следующее изображение">→</button>
+                <button className="project-detail__gallery-nav project-detail__gallery-nav--next" type="button" onClick={() => goToSlide(activeSlide + 1)} disabled={activeSlide === galleryImages.length - 1} aria-label="Следующее изображение"><FiArrowRight aria-hidden="true" /></button>
               </div>
               <div className="project-detail__pagination" aria-label="Навигация по галерее">
                 {galleryImages.map((image, imageIndex) => <button key={image} type="button" className={imageIndex === activeSlide ? "is-active" : ""} onClick={() => goToSlide(imageIndex)} aria-label={`Показать изображение ${imageIndex + 1}`} />)}
@@ -280,8 +281,8 @@ export function StackProject({ children, className, detail, index, labelledBy }:
                 {detail.tags.map((tag) => <li key={tag}>{tag}</li>)}
               </ul>
               <div className="project-detail__actions">
-                <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}>← ЗАКРЫТЬ</button>
-                <a href={detail.behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE ↗</a>
+                <button className="project-detail__close" type="button" onClick={() => closeDetail("left")}><FiArrowLeft aria-hidden="true" /> ЗАКРЫТЬ</button>
+                <a href={detail.behanceUrl} target="_blank" rel="noreferrer" onClick={() => haptic([14, 40, 18])}>BEHANCE <FiArrowUpRight aria-hidden="true" /></a>
               </div>
             </motion.aside>
           </div>

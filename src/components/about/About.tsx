@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { FiArrowRight, FiPlus, FiStar } from "react-icons/fi";
 import aboutDaria from "../../../images/dasha-about.png";
 
 const details = ["MOSCOW", "RU — NATIVE", "EN — B1", "ES — A1"];
@@ -61,7 +62,7 @@ export function About() {
 
       <header className="about__topline">
         <p><span>04</span> / PERSONAL NOTES</p>
-        <span className="about__asterisk" aria-hidden="true">✦</span>
+        <FiStar className="about__asterisk" aria-hidden="true" />
         <p>GRAPHIC DESIGNER / MOSCOW</p>
       </header>
 
@@ -99,15 +100,15 @@ export function About() {
         </aside>
 
         <div className="about__interests" aria-label="Интересы">
-          <span className="about__interests-title">INTERESTS →</span>
+          <span className="about__interests-title">INTERESTS <FiArrowRight aria-hidden="true" /></span>
           {interests.map((interest, index) => (
             <span key={interest} className={`about__tag about__tag--${index + 1}`}>{interest}</span>
           ))}
         </div>
 
         <p className="about__folio" aria-hidden="true">PERSONAL FILE<br />DASHA / 2026</p>
-        <span className="about__cross about__cross--one" aria-hidden="true">+</span>
-        <span className="about__cross about__cross--two" aria-hidden="true">+</span>
+        <FiPlus className="about__cross about__cross--one" aria-hidden="true" />
+        <FiPlus className="about__cross about__cross--two" aria-hidden="true" />
       </div>
     </section>
   );

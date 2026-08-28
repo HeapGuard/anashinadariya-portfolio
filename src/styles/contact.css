@@ -49,7 +49,7 @@
 
 .contact__topline p:last-child { text-align: right; }
 .contact__topline p:first-child span,
-.contact__topline > span { color: var(--yellow); }
+.contact__topline > svg { color: var(--yellow); width: 1.2em; height: 1.2em; }
 
 .contact__poster {
   position: relative;
@@ -106,11 +106,11 @@
   transition: color .25s ease, background .25s ease, transform .25s ease, box-shadow .25s ease;
 }
 
-.contact__cta span:last-child {
+.contact__cta svg {
   color: var(--yellow);
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 3.3vw, 4rem);
-  line-height: .5;
+  width: clamp(1.7rem, 3vw, 3.4rem);
+  height: clamp(1.7rem, 3vw, 3.4rem);
+  flex: 0 0 auto;
 }
 
 .contact__cta:hover,
@@ -121,8 +121,8 @@
   transform: translate(4px, 5px) rotate(0);
 }
 
-.contact__cta:hover span:last-child,
-.contact__cta:focus-visible span:last-child { color: var(--blue); }
+.contact__cta:hover svg,
+.contact__cta:focus-visible svg { color: var(--blue); }
 
 .contact__list {
   position: absolute;
@@ -152,7 +152,9 @@
 }
 
 .contact__item a {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
   max-width: 100%;
   font-family: var(--font-display);
   font-size: clamp(1.2rem, 2.35vw, 2.8rem);
@@ -162,6 +164,7 @@
   text-decoration: none;
   transition: color .22s ease, transform .22s ease;
 }
+.contact__item a svg { width: .9em; height: .9em; flex: 0 0 auto; }
 
 .contact__item a:hover,
 .contact__item a:focus-visible { color: var(--blue); transform: translateX(5px); }
@@ -178,8 +181,8 @@
 .contact__register {
   position: absolute;
   color: var(--yellow);
-  font-family: var(--font-pixel);
-  font-size: clamp(1rem, 1.8vw, 1.8rem);
+  width: clamp(1rem, 1.8vw, 1.8rem);
+  height: clamp(1rem, 1.8vw, 1.8rem);
 }
 
 .contact__register--one { top: 14%; right: 8%; }
@@ -203,7 +206,8 @@
 
 .contact__footer p:first-child span { color: var(--yellow); }
 .contact__footer p:nth-child(2) { text-align: center; }
-.contact__footer a { justify-self: end; color: var(--paper); text-decoration: none; }
+.contact__footer a { justify-self: end; display: inline-flex; align-items: center; gap: .5em; color: var(--paper); text-decoration: none; }
+.contact__footer a svg { width: 1.1em; height: 1.1em; }
 .contact__footer a:hover,
 .contact__footer a:focus-visible { color: var(--orange); }
 

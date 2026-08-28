@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { SiFigma } from "react-icons/si";
 import { TbBrandAdobeIllustrator, TbBrandAdobeIndesign, TbBrandAdobePhotoshop } from "react-icons/tb";
+import { FiPlus, FiStar } from "react-icons/fi";
 
 const tools = [
   { index: "01", Icon: TbBrandAdobePhotoshop, name: "PHOTOSHOP" },
@@ -64,7 +65,7 @@ export function Skills() {
 
       <header className="skills__topline">
         <p><span>05</span> / SKILLS &amp; TOOLS</p>
-        <span aria-hidden="true">✦</span>
+        <FiStar aria-hidden="true" />
         <p>DESIGN PRACTICE / 2026</p>
       </header>
 
@@ -78,7 +79,7 @@ export function Skills() {
           <article className={`skills__tool skills__tool--${index + 1}`} role="listitem" key={tool.name}>
             <tool.Icon className="skills__monogram" aria-hidden="true" focusable="false" />
             <p className="skills__tool-name"><span>{tool.index}</span> / {tool.name}</p>
-            <span className="skills__tool-mark" aria-hidden="true">+</span>
+            <FiPlus className="skills__tool-mark" aria-hidden="true" />
           </article>
         ))}
       </div>

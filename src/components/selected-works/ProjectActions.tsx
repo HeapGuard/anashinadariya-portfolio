@@ -1,1 +1,2 @@
-export function ProjectActions({ onClose, href }: { onClose: () => void; href: string }) { return <div className="project-detail__actions"><button className="project-detail__close" type="button" onClick={onClose}>← ЗАКРЫТЬ</button><a href={href} target="_blank" rel="noreferrer">BEHANCE ↗</a></div>; }
+import { FiArrowLeft, FiArrowUpRight } from "react-icons/fi";
+export function ProjectActions({ onClose, href }: { onClose: () => void; href: string }) { return <div className="project-detail__actions"><button className="project-detail__close" type="button" onClick={onClose}><FiArrowLeft aria-hidden="true" /> ЗАКРЫТЬ</button><a href={href} target="_blank" rel="noreferrer">BEHANCE <FiArrowUpRight aria-hidden="true" /></a></div>; }
