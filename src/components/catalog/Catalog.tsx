@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { FiArrowUpRight, FiStar, FiX } from "react-icons/fi";
 import calendar from "../../../images/ДИЗАЙН КАЛЕНДАРЯ/1.png";
 import corporate from "../../../images/CorporatePrint&DigitalDesign/1.png";
@@ -66,15 +67,14 @@ export function Catalog() {
 
   const closeCatalog = () => setIsOpen(false);
 
-  return (
-    <section ref={sectionRef} id="catalog" className="catalog" aria-labelledby="catalog-title">
-      <button className="catalog__trigger" type="button" onClick={openCatalog} aria-haspopup="dialog">
-        <span>01A / COMPLETE INDEX</span>
-        <strong>ОТКРЫТЬ КАТАЛОГ</strong>
-        <FiArrowUpRight aria-hidden="true" />
-      </button>
-
-      {isOpening && <div className="catalog__opening" role="status" aria-live="polite"><p>ОТКРЫВАЮ<br />КАТАЛОГ...</p><FiStar aria-hidden="true" /></div>}
+  const catalogScreen = (
+    <>
+      {isOpening && (
+        <div className="catalog__opening" role="status" aria-live="polite">
+          <p>ОТКРЫВАЮ<br />КАТАЛОГ...</p>
+          <FiStar aria-hidden="true" />
+        </div>
+      )}
 
       <div className={`catalog__fullscreen ${isOpen ? "catalog__fullscreen--open" : ""}`} role="dialog" aria-modal="true" aria-label="Каталог проектов" aria-hidden={!isOpen}>
         <div className="catalog__grain" aria-hidden="true" />
@@ -85,32 +85,45 @@ export function Catalog() {
           <p>08 PROJECTS / 2026</p>
         </header>
 
-      <div className="catalog__heading">
-        <p>ВСЕ РАБОТЫ<br />В ОДНОМ МЕСТЕ</p>
-        <h2 id="catalog-title">КАТАЛОГ<br /><span>ПРОЕКТОВ</span></h2>
-        <img className="catalog__sleeping-cat" src={catSleep} alt="" aria-hidden="true" loading="lazy" />
-      </div>
+        <div className="catalog__heading">
+          <p>ВСЕ РАБОТЫ<br />В ОДНОМ МЕСТЕ</p>
+          <h2 id="catalog-title">КАТАЛОГ<br /><span>ПРОЕКТОВ</span></h2>
+          <img className="catalog__sleeping-cat" src={catSleep} alt="" aria-hidden="true" loading="lazy" />
+        </div>
 
-      <div className="catalog__grid" aria-label="Каталог работ">
-        {works.map((work, index) => (
-          <a className={`catalog__card catalog__card--${index + 1}`} href={work.href} target="_blank" rel="noreferrer" key={work.number}>
-            <span className="catalog__number">{work.number}</span>
-            <figure><img src={work.image} alt={work.title} loading="lazy" decoding="async" /></figure>
-            <div className="catalog__card-meta">
-              <p>{work.type}</p>
-              <h3>{work.title}</h3>
-              <FiArrowUpRight aria-hidden="true" />
-            </div>
-          </a>
-        ))}
-      </div>
+        <div className="catalog__grid" aria-label="Каталог работ">
+          {works.map((work, index) => (
+            <a className={`catalog__card catalog__card--${index + 1}`} href={work.href} target="_blank" rel="noreferrer" key={work.number}>
+              <span className="catalog__number">{work.number}</span>
+              <figure><img src={work.image} alt={work.title} loading="lazy" decoding="async" /></figure>
+              <div className="catalog__card-meta">
+                <p>{work.type}</p>
+                <h3>{work.title}</h3>
+                <FiArrowUpRight aria-hidden="true" />
+              </div>
+            </a>
+          ))}
+        </div>
 
         <footer className="catalog__footer">
-        <img src={catBouquet} alt="" aria-hidden="true" loading="lazy" />
-        <p>MORE PROJECTS<br />ON BEHANCE</p>
-        <a href="https://www.behance.net/pegasy" target="_blank" rel="noreferrer">VIEW PROFILE <FiArrowUpRight aria-hidden="true" /></a>
+          <img src={catBouquet} alt="" aria-hidden="true" loading="lazy" />
+          <p>MORE PROJECTS<br />ON BEHANCE</p>
+          <a href="https://www.behance.net/pegasy" target="_blank" rel="noreferrer">VIEW PROFILE <FiArrowUpRight aria-hidden="true" /></a>
         </footer>
       </div>
-    </section>
+    </>
+  );
+
+  return (
+    <>
+      <section ref={sectionRef} id="catalog" className="catalog" aria-label="Каталог проектов">
+        <button className="catalog__trigger" type="button" onClick={openCatalog} aria-haspopup="dialog">
+          <span>01A / COMPLETE INDEX</span>
+          <strong>ОТКРЫТЬ КАТАЛОГ</strong>
+          <FiArrowUpRight aria-hidden="true" />
+        </button>
+      </section>
+      {(isOpening || isOpen) && createPortal(catalogScreen, document.body)}
+    </>
   );
 }
