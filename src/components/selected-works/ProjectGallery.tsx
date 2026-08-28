@@ -1,1 +1,0 @@
-export function ProjectGallery({ images, alt = "Фрагмент проекта" }: { images: string[]; alt?: string }) { return <div className="project-detail__gallery">{images.map((image, index) => <img key={image} src={image} alt={`${alt} ${index + 1}`} />)}</div>; }

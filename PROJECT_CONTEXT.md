@@ -2,6 +2,14 @@
 
 Этот файл предназначен для передачи проекта в новый чат. Перед началом работы прочитай его полностью, затем проверь актуальное состояние Git и запусти сборку.
 
+> **Актуальное состояние после refactor (приоритетнее старых разделов ниже).** Страница содержит Hero, Selected Works, Catalog, Experience, Award, About, Skills и Contact — фраза ниже о не реализованных секциях устарела. Источником всех project/catalog data служит `src/data/portfolio.ts`: `projects` содержит четыре выбранные работы, а `catalogWorks` — восемь catalog-работ (первые четыре выводятся из `projects`). UI не должен дублировать ссылки, изображения или Behance URL.
+
+> **Interaction architecture.** `useHorizontalSwipe` — единый жест: вправо закрывает, влево открывает Behance, порог 30% ширины. Catalog принимает жест только от edge экрана; detail — с поверхности карточки, но не с gallery и controls. `useFirstOpenHint` + `SwipeGuide` показывают подсказку один раз за reload для каталога и для любого detail. `useBodyScrollLock` использует reference-counted body lock для loader, mobile menu и catalog; ручные присваивания `body.style.overflow` не добавлять.
+
+> **Refactor rules.** DRY — данные, ссылки, swipe, onboarding и scroll-lock существуют в одном месте. SRP применяется прагматично: data отвечает за контент, hooks — за одно взаимодействие, components — за композицию. Не добавлять абстракцию для единственного простого случая. Detail остаётся локальным внутри project-card; fullscreen viewer — отдельный portal. Декоративные `::before` и texture layers обязательно `pointer-events: none`.
+
+> **Проверка.** Минимум: 320/375/425/768/1024/1440, reduced motion, DROP Close/Behance, detail gallery и оба направления свайпа, catalog CTA/guide/swipes/scroll return. Перед коммитом: `npm run build` и `git diff --check`.
+
 ## 1. Что это за проект
 
 Одностраничное портфолио Дарьи Анашиной на React + TypeScript + Vite. Визуальный язык: royal blue paper/cardboard texture, editorial collage, pixel-типографика, бумажные слои, тени и физические перекрытия.

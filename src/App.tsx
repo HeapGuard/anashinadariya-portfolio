@@ -11,12 +11,15 @@ import { Contact } from "./components/contact/Contact";
 import { SiteLoader } from "./components/layout/SiteLoader";
 import { CompactHeader } from "./components/layout/SiteNavigation";
 import { preloadedImages } from "./data/portfolio";
+import { useBodyScrollLock } from "./hooks/useBodyScrollLock";
  
 
 function App() {
   const [compactHeaderVisible, setCompactHeaderVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
+  useBodyScrollLock(!assetsLoaded);
+  useBodyScrollLock(mobileMenuOpen);
 
   useEffect(() => {
     const updateCompactHeader = () => setCompactHeaderVisible(window.scrollY > 67);
@@ -29,8 +32,6 @@ function App() {
     if (assetsLoaded) return;
     let isCurrent = true;
     const loaderStartedAt = Date.now();
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
 
     const loadImage = (source: string) => new Promise<void>((resolve) => {
       const image = new Image();
@@ -49,18 +50,14 @@ function App() {
 
     return () => {
       isCurrent = false;
-      document.body.style.overflow = previousOverflow;
     };
   }, [assetsLoaded]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
-    const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && setMobileMenuOpen(false);
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [mobileMenuOpen]);

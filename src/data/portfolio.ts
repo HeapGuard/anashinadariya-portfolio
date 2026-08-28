@@ -15,6 +15,9 @@ import roamCaseFour from "../../images/ROAM—TravelMagazineDesign/7.png";
 import dropCaseOne from "../../images/DROP—NewspaperDesign/1.png";
 import dropCaseTwo from "../../images/DROP—NewspaperDesign/3.png";
 import dropCaseThree from "../../images/DROP—NewspaperDesign/5.png";
+import calendar from "../../images/ДИЗАЙН КАЛЕНДАРЯ/1.png";
+import posters from "../../images/ПЛАКАТЫ/1.png";
+import culture from "../../images/InternalCultureDesignSet/1.png";
 
 export type ProjectDetail = { description: string; images: string[]; tags: string[]; behanceUrl: string };
 export type Project = {
@@ -28,6 +31,7 @@ export type Project = {
   detail: ProjectDetail;
 };
 export type SocialLink = { label: string; href: string; kind: "behance" | "telegram" | "mail" };
+export type CatalogWork = { number: string; title: string; type: string; image: string; href: string };
 
 export const navigation = [
   { label: "РАБОТЫ", href: "#selected-works" },
@@ -54,5 +58,22 @@ export const projects: Project[] = [
   { className: "project--roam", index: 2, type: "EDITORIAL / 2025", title: ["ROAM"], description: "Журнал о путешествиях с живой журнальной сеткой, картами и коллекцией маршрутов.", image: roam, imageAlt: "ROAM — travel magazine design", detail: { description: "Редакционный журнал о путешествиях. Карты, заметки, развороты и ритм полос складываются в личный путевой архив.", images: [roamCaseOne, roamCaseTwo, roamCaseThree, roamCaseFour], tags: ["EDITORIAL", "ЖУРНАЛ", "КАРТЫ"], behanceUrl: "https://www.behance.net/gallery/243580057/ROAM-Travel-Magazine-Design" } },
   { className: "project--drop", index: 3, type: "NEWSPAPER / 2025", title: ["DROP"], description: "Газетный формат, в котором новости, реклама и культурная афиша собираются в единую систему.", image: drop, imageAlt: "DROP — newspaper design", detail: { description: "Газетная визуальная система, где новости, события и рекламные модули собираются в выразительный ежедневный формат.", images: [dropCaseOne, dropCaseTwo, dropCaseThree], tags: ["ГАЗЕТА", "СЕТКА", "ART DIRECTION"], behanceUrl: "https://www.behance.net/gallery/243642391/DROP-Newspaper-Design" } },
 ];
+
+const projectCatalogWorks: CatalogWork[] = projects.map((project) => ({
+  number: String(project.index + 1).padStart(2, "0"),
+  title: project.title.join(" ").toUpperCase(),
+  type: project.type,
+  image: project.image,
+  href: project.detail.behanceUrl,
+}));
+
+const catalogOnlyWorks: CatalogWork[] = [
+  { number: "05", title: "ДИЗАЙН КАЛЕНДАРЯ", type: "PRINT / CALENDAR", image: calendar, href: behanceUrl },
+  { number: "06", title: "ПЛАКАТЫ", type: "POSTER / SERIES", image: posters, href: behanceUrl },
+  { number: "07", title: "CORPORATE PRINT", type: "PRINT / DIGITAL", image: corporate, href: behanceUrl },
+  { number: "08", title: "INTERNAL CULTURE", type: "HR / COMMUNICATION", image: culture, href: behanceUrl },
+];
+
+export const catalogWorks = [...projectCatalogWorks, ...catalogOnlyWorks];
 
 export const preloadedImages = [...new Set([avatar, avatarCat, solar, drop, corporate, roam, theatre, solarCaseOne, solarCaseTwo, theatreCase, roamCaseOne, roamCaseTwo, roamCaseThree, roamCaseFour, dropCaseOne, dropCaseTwo, dropCaseThree])];

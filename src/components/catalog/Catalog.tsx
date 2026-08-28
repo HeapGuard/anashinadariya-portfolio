@@ -2,37 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaBehance } from "react-icons/fa";
 import { FiArrowUpRight, FiStar, FiX } from "react-icons/fi";
+import { behanceUrl, catalogWorks } from "../../data/portfolio";
 import { useHorizontalSwipe } from "../../hooks/useHorizontalSwipe";
-import calendar from "../../../images/ДИЗАЙН КАЛЕНДАРЯ/1.png";
-import corporate from "../../../images/CorporatePrint&DigitalDesign/1.png";
-import culture from "../../../images/InternalCultureDesignSet/1.png";
-import posters from "../../../images/ПЛАКАТЫ/1.png";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import { useFirstOpenHint } from "../../hooks/useFirstOpenHint";
+import { SwipeGuide } from "../interaction/SwipeGuide";
 import catSleep from "../../../images/котики на фон/hero-cat-sleep.png";
 import catBouquet from "../../../images/котики на фон/hero-cat-bouquet.png";
-import solar from "../../../images/SOLAR ADVENTURES/preview/1.png";
-import theatre from "../../../images/ТЕАТРАЛЬНАЯ ПЬЕСА/1.png";
-import roam from "../../../images/ROAM—TravelMagazineDesign/preview/1.png";
-import drop from "../../../images/DROP—NewspaperDesign/preview/1.png";
-
-const works = [
-  { number: "01", title: "SOLAR ADVENTURES", type: "BRANDING / TRAVEL", image: solar, href: "https://www.behance.net/gallery/243499863/SOLAR-ADVENTURES" },
-  { number: "02", title: "ТЕАТРАЛЬНАЯ ПЬЕСА", type: "POSTER / CULTURE", image: theatre, href: "https://www.behance.net/pegasy" },
-  { number: "03", title: "ROAM", type: "EDITORIAL / 2025", image: roam, href: "https://www.behance.net/gallery/243580057/ROAM-Travel-Magazine-Design" },
-  { number: "04", title: "DROP", type: "NEWSPAPER / 2025", image: drop, href: "https://www.behance.net/gallery/243642391/DROP-Newspaper-Design" },
-  { number: "05", title: "ДИЗАЙН КАЛЕНДАРЯ", type: "PRINT / CALENDAR", image: calendar, href: "https://www.behance.net/pegasy" },
-  { number: "06", title: "ПЛАКАТЫ", type: "POSTER / SERIES", image: posters, href: "https://www.behance.net/pegasy" },
-  { number: "07", title: "CORPORATE PRINT", type: "PRINT / DIGITAL", image: corporate, href: "https://www.behance.net/pegasy" },
-  { number: "08", title: "INTERNAL CULTURE", type: "HR / COMMUNICATION", image: culture, href: "https://www.behance.net/pegasy" },
-];
 
 export function Catalog() {
   const sectionRef = useRef<HTMLElement>(null);
   const openTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
-  const bodyOverflow = useRef<string | null>(null);
   const [isOpening, setIsOpening] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  useBodyScrollLock(isOpen || isOpening || isClosing);
+  const showSwipeGuide = useFirstOpenHint("catalog-swipe", isOpen);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -50,22 +36,9 @@ export function Catalog() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const shouldLock = isOpen || isOpening || isClosing;
-    if (shouldLock && bodyOverflow.current === null) {
-      bodyOverflow.current = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-    }
-    if (!shouldLock && bodyOverflow.current !== null) {
-      document.body.style.overflow = bodyOverflow.current;
-      bodyOverflow.current = null;
-    }
-  }, [isOpen, isOpening, isClosing]);
-
   useEffect(() => () => {
     if (openTimer.current) window.clearTimeout(openTimer.current);
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
-    if (bodyOverflow.current !== null) document.body.style.overflow = bodyOverflow.current;
   }, []);
 
   const openCatalog = () => {
@@ -102,7 +75,7 @@ export function Catalog() {
     if (!fromSwipe) catalogSwipe.reset();
     setIsOpen(false);
     setIsClosing(true);
-    window.setTimeout(() => window.open("https://www.behance.net/pegasy", "_blank", "noopener,noreferrer"), 480);
+    window.setTimeout(() => window.open(behanceUrl, "_blank", "noopener,noreferrer"), 480);
     closeTimer.current = window.setTimeout(() => {
       setIsClosing(false);
       catalogSwipe.reset();
@@ -117,6 +90,7 @@ export function Catalog() {
           <FiStar aria-hidden="true" />
         </div>
       )}
+      <SwipeGuide visible={showSwipeGuide} />
 
       {isOpen && catalogSwipe.direction && <div className={`catalog__swipe-hint catalog__swipe-hint--${catalogSwipe.direction} ${catalogSwipe.isReady ? "catalog__swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + catalogSwipe.progress * 0.74 }} aria-hidden="true">{catalogSwipe.direction === "close" ? <FiX /> : <FaBehance />}</div>}
 
@@ -144,7 +118,7 @@ export function Catalog() {
         </div>
 
         <div className="catalog__grid" aria-label="Каталог работ">
-          {works.map((work, index) => (
+          {catalogWorks.map((work, index) => (
             <a className={`catalog__card catalog__card--${index + 1}`} href={work.href} target="_blank" rel="noreferrer" key={work.number}>
               <span className="catalog__number">{work.number}</span>
               <figure><img src={work.image} alt={work.title} loading="lazy" decoding="async" /></figure>

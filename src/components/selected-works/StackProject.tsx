@@ -7,7 +7,9 @@ import { type ProjectDetail } from "../../data/portfolio";
 import { haptic } from "../../hooks/useHaptic";
 import { useHorizontalSwipe } from "../../hooks/useHorizontalSwipe";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useFirstOpenHint } from "../../hooks/useFirstOpenHint";
 import { useStackContext } from "./StackStage";
+import { SwipeGuide } from "../interaction/SwipeGuide";
 
 type StackProjectProps = { children: ReactNode; className: string; detail: ProjectDetail; index: number; labelledBy: string; };
 
@@ -21,6 +23,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const isMobile = useMediaQuery("(max-width: 760px)");
+  const showSwipeGuide = useFirstOpenHint("project-detail-swipe", isOpen && detailExpanded);
   const detailOpenTimer = useRef<number | null>(null);
   const detailExpandTimer = useRef<number | null>(null);
   const detailCollapseTimer = useRef<number | null>(null);
@@ -179,6 +182,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
       {isOpen && cardRef.current && createPortal(
         <AnimatePresence>
           <div className="project-detail-layer">
+            <SwipeGuide visible={showSwipeGuide} />
             {isMobile && detailExpanded && detailSwipe.direction && (
               <div className={`project-swipe-hint project-swipe-hint--${detailSwipe.direction} ${detailSwipe.isReady ? "project-swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + detailSwipe.progress * 0.74 }} aria-hidden="true">
                 {detailSwipe.direction === "close" ? <span>×</span> : <FaBehance />}
