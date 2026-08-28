@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FiArrowUpRight, FiStar, FiX } from "react-icons/fi";
 import calendar from "../../../images/ДИЗАЙН КАЛЕНДАРЯ/1.png";
@@ -26,8 +26,14 @@ const works = [
 export function Catalog() {
   const sectionRef = useRef<HTMLElement>(null);
   const openTimer = useRef<number | null>(null);
+  const closeTimer = useRef<number | null>(null);
+  const swipeStart = useRef<{ x: number; y: number; intent: "horizontal" | "vertical" | null } | null>(null);
   const [isOpening, setIsOpening] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [swipeProgress, setSwipeProgress] = useState(0);
+  const [swipeReady, setSwipeReady] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -46,7 +52,7 @@ export function Catalog() {
   }, []);
 
   useEffect(() => {
-    if (!isOpen && !isOpening) return;
+    if (!isOpen && !isOpening && !isClosing) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = previousOverflow; };
@@ -54,6 +60,7 @@ export function Catalog() {
 
   useEffect(() => () => {
     if (openTimer.current) window.clearTimeout(openTimer.current);
+    if (closeTimer.current) window.clearTimeout(closeTimer.current);
   }, []);
 
   const openCatalog = () => {
@@ -65,7 +72,56 @@ export function Catalog() {
     }, 720);
   };
 
-  const closeCatalog = () => setIsOpen(false);
+  const resetSwipe = () => {
+    setSwipeOffset(0);
+    setSwipeProgress(0);
+    setSwipeReady(false);
+  };
+
+  const closeCatalog = () => {
+    if (!isOpen || isClosing) return;
+    resetSwipe();
+    setIsOpen(false);
+    setIsClosing(true);
+    closeTimer.current = window.setTimeout(() => setIsClosing(false), 620);
+  };
+
+  const startCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!isOpen || event.pointerType === "mouse" || !event.isPrimary) return;
+    const target = event.target as HTMLElement;
+    if (target.closest("a, button")) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    swipeStart.current = { x: event.clientX, y: event.clientY, intent: null };
+  };
+
+  const moveCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const swipe = swipeStart.current;
+    if (!swipe || swipe.intent === "vertical") return;
+    const offsetX = Math.max(0, event.clientX - swipe.x);
+    const offsetY = event.clientY - swipe.y;
+    if (!swipe.intent) {
+      if (Math.abs(offsetY) > Math.abs(offsetX) + 6) {
+        swipe.intent = "vertical";
+        return;
+      }
+      if (Math.abs(offsetX) < 8) return;
+      swipe.intent = "horizontal";
+    }
+    event.preventDefault();
+    const threshold = window.innerWidth * 0.3;
+    setSwipeOffset(offsetX);
+    setSwipeProgress(Math.min(offsetX / threshold, 1));
+    setSwipeReady(offsetX >= threshold);
+  };
+
+  const endCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const swipe = swipeStart.current;
+    swipeStart.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (!swipe || swipe.intent !== "horizontal") return;
+    if (event.clientX - swipe.x >= window.innerWidth * 0.3) closeCatalog();
+    else resetSwipe();
+  };
 
   const catalogScreen = (
     <>
@@ -76,8 +132,20 @@ export function Catalog() {
         </div>
       )}
 
-      <div className={`catalog__fullscreen ${isOpen ? "catalog__fullscreen--open" : ""}`} role="dialog" aria-modal="true" aria-label="Каталог проектов" aria-hidden={!isOpen}>
+      <div
+        className={`catalog__fullscreen ${isOpen ? "catalog__fullscreen--open" : ""} ${isClosing ? "catalog__fullscreen--closing" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Каталог проектов"
+        aria-hidden={!isOpen}
+        onPointerDown={startCloseSwipe}
+        onPointerMove={moveCloseSwipe}
+        onPointerUp={endCloseSwipe}
+        onPointerCancel={resetSwipe}
+        style={isOpen && swipeOffset ? { transform: `translateX(${swipeOffset}px)` } : undefined}
+      >
         <div className="catalog__grain" aria-hidden="true" />
+        {isOpen && swipeProgress > 0 && <div className={`catalog__swipe-close ${swipeReady ? "catalog__swipe-close--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true"><FiX /></div>}
         <button className="catalog__close" type="button" onClick={closeCatalog} aria-label="Закрыть каталог"><FiX aria-hidden="true" /> <span>ЗАКРЫТЬ</span></button>
         <header className="catalog__topline">
           <p><span>01A</span> / COMPLETE INDEX</p>
@@ -123,7 +191,7 @@ export function Catalog() {
           <FiArrowUpRight aria-hidden="true" />
         </button>
       </section>
-      {(isOpening || isOpen) && createPortal(catalogScreen, document.body)}
+      {(isOpening || isOpen || isClosing) && createPortal(catalogScreen, document.body)}
     </>
   );
 }
