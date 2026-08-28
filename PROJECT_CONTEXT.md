@@ -20,7 +20,7 @@
 2. Selected Works: четыре project-карточки в pinned stack-композиции.
 3. Project detail: подробности выбранного проекта, галерея до пяти изображений, точки пагинации, fullscreen viewer, действия Close / Behance.
 
-Другие разделы пока намеренно не реализованы.
+Дополнительные разделы реализованы: Catalog, Experience, Award, About, Skills и Contact.
 
 ## 2. Стек и команды
 
@@ -43,7 +43,9 @@ src/
     useCardAlignment.ts           # iPhone-safe выравнивание карточки перед открытием
     useHaptic.ts                  # haptic feedback на coarse pointer
     useMediaQuery.ts              # реактивный media query
-    useScrollLock.ts              # блокировка системной прокрутки
+    useBodyScrollLock.ts          # reference-counted блокировка body scroll
+    useFirstOpenHint.ts           # одноразовые onboarding-подсказки за reload
+    useHorizontalSwipe.ts         # общий swipe Close / Behance
   components/
     layout/
       SiteLoader.tsx
@@ -55,10 +57,8 @@ src/
       StackStage.tsx
       StackProject.tsx             # основной state machine карточки и деталки
       ProjectPreview.tsx
-      ProjectDetail.tsx
-      ProjectGallery.tsx
-      ProjectActions.tsx
-      CaseImageViewer.tsx
+    catalog/Catalog.tsx           # trigger и fullscreen catalog portal
+    interaction/SwipeGuide.tsx    # общая подсказка жестов
     Container.tsx, Divider.tsx,
     PaperSurface.tsx, PixelLabel.tsx,
     SectionLabel.tsx                # существующие общие примитивы
@@ -126,8 +126,8 @@ src/
 - Галерея имеет независимый горизонтальный swipe и не должна запускать drag карточки.
 - Вертикальный жест страницы не должен двигать detail-карточку.
 - На мобильном горизонтальный drag использует pointer events и threshold 30% ширины.
-- Свайп влево — закрытие, красный индикатор с крестиком.
-- Свайп вправо — Behance, зелёный индикатор с иконкой Behance.
+- Свайп вправо — закрытие, красный индикатор с крестиком.
+- Свайп влево — Behance, зелёный индикатор с иконкой Behance.
 - Не добавляй `touch-action` или `preventDefault` на галерею так, чтобы сломать её горизонтальный swipe.
 - Fullscreen viewer закрывается по кнопке, overlay и клику по изображению согласно текущему поведению.
 - Сохраняй haptic feedback на coarse pointer.
