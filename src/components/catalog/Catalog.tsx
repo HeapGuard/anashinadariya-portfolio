@@ -1,6 +1,8 @@
-import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { FaBehance } from "react-icons/fa";
 import { FiArrowUpRight, FiStar, FiX } from "react-icons/fi";
+import { useHorizontalSwipe } from "../../hooks/useHorizontalSwipe";
 import calendar from "../../../images/ДИЗАЙН КАЛЕНДАРЯ/1.png";
 import corporate from "../../../images/CorporatePrint&DigitalDesign/1.png";
 import culture from "../../../images/InternalCultureDesignSet/1.png";
@@ -28,13 +30,9 @@ export function Catalog() {
   const openTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
   const bodyOverflow = useRef<string | null>(null);
-  const swipeStart = useRef<{ x: number; y: number; intent: "horizontal" | "vertical" | null } | null>(null);
   const [isOpening, setIsOpening] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [swipeOffset, setSwipeOffset] = useState(0);
-  const [swipeProgress, setSwipeProgress] = useState(0);
-  const [swipeReady, setSwipeReady] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -79,63 +77,36 @@ export function Catalog() {
     }, 720);
   };
 
-  const resetSwipe = () => {
-    setSwipeOffset(0);
-    setSwipeProgress(0);
-    setSwipeReady(false);
-  };
+  const catalogSwipe = useHorizontalSwipe({
+    enabled: isOpen && !isClosing,
+    edge: "both",
+    onComplete: (direction) => {
+      if (direction === "close") closeCatalog(true);
+      else openCatalogBehance(true);
+    },
+  });
 
   const closeCatalog = (fromSwipe = false) => {
     if (!isOpen || isClosing) return;
-    if (!fromSwipe) resetSwipe();
+    if (!fromSwipe) catalogSwipe.reset();
     setIsOpen(false);
     setIsClosing(true);
     closeTimer.current = window.setTimeout(() => {
       setIsClosing(false);
-      resetSwipe();
+      catalogSwipe.reset();
     }, 620);
   };
 
-  const startCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!isOpen || event.pointerType === "mouse" || !event.isPrimary || window.innerWidth > 760 || event.clientX > 32) return;
-    const target = event.target as HTMLElement;
-    if (target.closest("a, button")) return;
-    swipeStart.current = { x: event.clientX, y: event.clientY, intent: null };
-  };
-
-  const moveCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const swipe = swipeStart.current;
-    if (!swipe || swipe.intent === "vertical") return;
-    const offsetX = Math.max(0, event.clientX - swipe.x);
-    const offsetY = event.clientY - swipe.y;
-    if (!swipe.intent) {
-      if (Math.abs(offsetY) > Math.abs(offsetX) + 6) {
-        swipe.intent = "vertical";
-        return;
-      }
-      if (Math.abs(offsetX) < 8) return;
-      swipe.intent = "horizontal";
-      if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
-    }
-    event.preventDefault();
-    const threshold = window.innerWidth * 0.3;
-    setSwipeOffset(offsetX);
-    setSwipeProgress(Math.min(offsetX / threshold, 1));
-    setSwipeReady(offsetX >= threshold);
-  };
-
-  const endCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const swipe = swipeStart.current;
-    swipeStart.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    if (!swipe || swipe.intent !== "horizontal") return;
-    if (event.clientX - swipe.x >= window.innerWidth * 0.3) closeCatalog(true);
-    else resetSwipe();
-  };
-
-  const cancelCloseSwipe = () => {
-    swipeStart.current = null;
-    resetSwipe();
+  const openCatalogBehance = (fromSwipe = false) => {
+    if (!isOpen || isClosing) return;
+    if (!fromSwipe) catalogSwipe.reset();
+    setIsOpen(false);
+    setIsClosing(true);
+    window.setTimeout(() => window.open("https://www.behance.net/pegasy", "_blank", "noopener,noreferrer"), 480);
+    closeTimer.current = window.setTimeout(() => {
+      setIsClosing(false);
+      catalogSwipe.reset();
+    }, 620);
   };
 
   const catalogScreen = (
@@ -147,7 +118,7 @@ export function Catalog() {
         </div>
       )}
 
-      {isOpen && swipeProgress > 0 && <div className={`catalog__swipe-close ${swipeReady ? "catalog__swipe-close--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true"><FiX /></div>}
+      {isOpen && catalogSwipe.direction && <div className={`catalog__swipe-hint catalog__swipe-hint--${catalogSwipe.direction} ${catalogSwipe.isReady ? "catalog__swipe-hint--ready" : ""}`} style={{ opacity: 0.18 + catalogSwipe.progress * 0.74 }} aria-hidden="true">{catalogSwipe.direction === "close" ? <FiX /> : <FaBehance />}</div>}
 
       <div
         className={`catalog__fullscreen ${isOpen ? "catalog__fullscreen--open" : ""} ${isClosing ? "catalog__fullscreen--closing" : ""}`}
@@ -155,11 +126,8 @@ export function Catalog() {
         aria-modal="true"
         aria-label="Каталог проектов"
         aria-hidden={!isOpen}
-        onPointerDown={startCloseSwipe}
-        onPointerMove={moveCloseSwipe}
-        onPointerUp={endCloseSwipe}
-        onPointerCancel={cancelCloseSwipe}
-        style={(isOpen || isClosing) && swipeOffset ? { transform: `translateX(${swipeOffset}px) translateY(${swipeProgress * 24}px) rotate(${swipeProgress * 4.5}deg)`, transformOrigin: "55% 100%" } : undefined}
+        {...catalogSwipe.handlers}
+        style={(isOpen || isClosing) && catalogSwipe.offset ? { transform: `translateX(${catalogSwipe.offset}px) translateY(${catalogSwipe.progress * 24}px) rotate(${Math.sign(catalogSwipe.offset) * catalogSwipe.progress * 4.5}deg)`, transformOrigin: "55% 100%" } : undefined}
       >
         <div className="catalog__grain" aria-hidden="true" />
         <button className="catalog__close" type="button" onClick={() => closeCatalog()} aria-label="Закрыть каталог"><FiX aria-hidden="true" /> <span>ЗАКРЫТЬ</span></button>
