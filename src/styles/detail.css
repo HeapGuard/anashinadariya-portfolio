@@ -19,8 +19,8 @@
 }
 
 .project-detail-layer {
-  position: absolute;
-  z-index: 5;
+  position: fixed;
+  z-index: 90;
   inset: 0;
   pointer-events: none;
 }
@@ -432,13 +432,13 @@
 }
 
 .project-swipe-hint--close {
-  right: 0;
-  border-radius: 100% 0 0 100%;
+  left: 0;
+  border-radius: 0 100% 100% 0;
 }
 
 .project-swipe-hint--behance {
-  left: 0;
-  border-radius: 0 100% 100% 0;
+  right: 0;
+  border-radius: 100% 0 0 100%;
 }
 
 .project-swipe-hint--ready { opacity: 0.92; }

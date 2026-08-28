@@ -96,16 +96,16 @@ export function StackProject({ children, className, detail, index, labelledBy }:
     stack.pulse();
     haptic(12);
   };
-  const openBehance = () => {
+  const openBehance = (direction: "left" | "right" = "right") => {
     haptic([14, 40, 18]);
-    closeDetail("right");
+    closeDetail(direction);
     window.setTimeout(() => window.open(detail.behanceUrl, "_blank", "noopener,noreferrer"), 520);
   };
   const updateDetailSwipe = (offset: number) => {
     const threshold = window.innerWidth * 0.3;
     setDragOffset(offset);
     setDragRotate(Math.max(-6, Math.min(6, (offset / window.innerWidth) * 9)));
-    setSwipeDirection(offset === 0 ? null : offset < 0 ? "close" : "behance");
+    setSwipeDirection(offset === 0 ? null : offset > 0 ? "close" : "behance");
     setSwipeReady(Math.abs(offset) >= threshold);
     setSwipeProgress(Math.min(Math.abs(offset) / threshold, 1));
   };
@@ -118,8 +118,8 @@ export function StackProject({ children, className, detail, index, labelledBy }:
       setSwipeProgress(0);
       return;
     }
-    if (offset < 0) closeDetail("left");
-    else openBehance();
+    if (offset > 0) closeDetail("right");
+    else openBehance("left");
   };
   const startDetailDrag = (event: React.PointerEvent<HTMLElement>) => {
     if (!isMobile || !detailExpanded || !event.isPrimary) return;
@@ -238,7 +238,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
           document.body,
         )}
       </motion.article>
-      {isOpen && cardRef.current && createPortal(
+      {isOpen && createPortal(
         <AnimatePresence>
           <div className="project-detail-layer">
             {isMobile && detailExpanded && swipeDirection && (
@@ -287,7 +287,7 @@ export function StackProject({ children, className, detail, index, labelledBy }:
             </motion.aside>
           </div>
         </AnimatePresence>,
-        cardRef.current,
+        document.body,
       )}
     </div>
   );
