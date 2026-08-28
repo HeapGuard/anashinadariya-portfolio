@@ -6,16 +6,17 @@ type SwipeOptions = {
   enabled: boolean;
   onComplete: (direction: SwipeDirection) => void;
   edge?: "none" | "both";
+  edgeZoneRatio?: number;
   excludedSelector?: string;
   thresholdRatio?: number;
 };
 
 type SwipeStart = { x: number; y: number; intent: "horizontal" | "vertical" | null };
 
-export function useHorizontalSwipe({ enabled, onComplete, edge = "none", excludedSelector = "a, button", thresholdRatio = 0.3 }: SwipeOptions) {
+export function useHorizontalSwipe({ enabled, onComplete, edge = "none", edgeZoneRatio = 0, excludedSelector = "a, button", thresholdRatio = 0.3 }: SwipeOptions) {
   const start = useRef<SwipeStart | null>(null);
-  const options = useRef({ enabled, onComplete, edge, excludedSelector, thresholdRatio });
-  options.current = { enabled, onComplete, edge, excludedSelector, thresholdRatio };
+  const options = useRef({ enabled, onComplete, edge, edgeZoneRatio, excludedSelector, thresholdRatio });
+  options.current = { enabled, onComplete, edge, edgeZoneRatio, excludedSelector, thresholdRatio };
   const [offset, setOffset] = useState(0);
   const [progress, setProgress] = useState(0);
   const [direction, setDirection] = useState<SwipeDirection | null>(null);
@@ -32,8 +33,11 @@ export function useHorizontalSwipe({ enabled, onComplete, edge = "none", exclude
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLElement>) => {
     const current = options.current;
     if (!current.enabled || event.pointerType === "mouse" || !event.isPrimary) return;
-    const fromLeft = event.clientX <= 32;
-    const fromRight = event.clientX >= window.innerWidth - 32;
+    const edgeZone = current.edgeZoneRatio
+      ? Math.min(96, Math.max(32, window.innerWidth * current.edgeZoneRatio))
+      : 32;
+    const fromLeft = event.clientX <= edgeZone;
+    const fromRight = event.clientX >= window.innerWidth - edgeZone;
     if (current.edge === "both" && !fromLeft && !fromRight) return;
     const target = event.target as HTMLElement;
     if (target.closest(current.excludedSelector)) return;

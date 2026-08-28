@@ -57,6 +57,7 @@ export function Catalog() {
   const catalogSwipe = useHorizontalSwipe({
     enabled: isOpen && !isClosing,
     edge: "both",
+    edgeZoneRatio: 1 / 16,
     onComplete: (direction) => {
       if (direction === "close") closeCatalog(true);
       else openCatalogBehance(true);
