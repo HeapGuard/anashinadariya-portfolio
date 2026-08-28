@@ -85,12 +85,15 @@ export function Catalog() {
     setSwipeReady(false);
   };
 
-  const closeCatalog = () => {
+  const closeCatalog = (fromSwipe = false) => {
     if (!isOpen || isClosing) return;
-    resetSwipe();
+    if (!fromSwipe) resetSwipe();
     setIsOpen(false);
     setIsClosing(true);
-    closeTimer.current = window.setTimeout(() => setIsClosing(false), 620);
+    closeTimer.current = window.setTimeout(() => {
+      setIsClosing(false);
+      resetSwipe();
+    }, 620);
   };
 
   const startCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -126,7 +129,7 @@ export function Catalog() {
     swipeStart.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     if (!swipe || swipe.intent !== "horizontal") return;
-    if (event.clientX - swipe.x >= window.innerWidth * 0.3) closeCatalog();
+    if (event.clientX - swipe.x >= window.innerWidth * 0.3) closeCatalog(true);
     else resetSwipe();
   };
 
@@ -144,6 +147,8 @@ export function Catalog() {
         </div>
       )}
 
+      {isOpen && swipeProgress > 0 && <div className={`catalog__swipe-close ${swipeReady ? "catalog__swipe-close--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true"><FiX /></div>}
+
       <div
         className={`catalog__fullscreen ${isOpen ? "catalog__fullscreen--open" : ""} ${isClosing ? "catalog__fullscreen--closing" : ""}`}
         role="dialog"
@@ -154,11 +159,10 @@ export function Catalog() {
         onPointerMove={moveCloseSwipe}
         onPointerUp={endCloseSwipe}
         onPointerCancel={cancelCloseSwipe}
-        style={isOpen && swipeOffset ? { transform: `translateX(${swipeOffset}px)` } : undefined}
+        style={(isOpen || isClosing) && swipeOffset ? { transform: `translateX(${swipeOffset}px) translateY(${swipeProgress * 24}px) rotate(${swipeProgress * 4.5}deg)`, transformOrigin: "55% 100%" } : undefined}
       >
         <div className="catalog__grain" aria-hidden="true" />
-        {isOpen && swipeProgress > 0 && <div className={`catalog__swipe-close ${swipeReady ? "catalog__swipe-close--ready" : ""}`} style={{ opacity: 0.18 + swipeProgress * 0.74 }} aria-hidden="true"><FiX /></div>}
-        <button className="catalog__close" type="button" onClick={closeCatalog} aria-label="Закрыть каталог"><FiX aria-hidden="true" /> <span>ЗАКРЫТЬ</span></button>
+        <button className="catalog__close" type="button" onClick={() => closeCatalog()} aria-label="Закрыть каталог"><FiX aria-hidden="true" /> <span>ЗАКРЫТЬ</span></button>
         <header className="catalog__topline">
           <p><span>01A</span> / COMPLETE INDEX</p>
           <FiStar aria-hidden="true" />
