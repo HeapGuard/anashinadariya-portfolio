@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Hero } from "./components/hero/Hero";
 import { SelectedWorks } from "./components/selected-works/SelectedWorks";
+import { Catalog } from "./components/catalog/Catalog";
 import { Experience } from "./components/experience/Experience";
 import { Award } from "./components/award/Award";
 import { About } from "./components/about/About";
@@ -82,6 +83,7 @@ function App() {
       <CompactHeader visible={compactHeaderVisible} open={mobileMenuOpen} onToggle={() => setMobileMenuOpen((isOpen) => !isOpen)} />
       <Hero mobileMenuOpen={mobileMenuOpen} onToggleMenu={() => setMobileMenuOpen((isOpen) => !isOpen)} />
       <SelectedWorks />
+      <Catalog />
       <Experience />
       <Award />
       <About />
