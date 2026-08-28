@@ -87,10 +87,9 @@ export function Catalog() {
   };
 
   const startCloseSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!isOpen || event.pointerType === "mouse" || !event.isPrimary) return;
+    if (!isOpen || event.pointerType === "mouse" || !event.isPrimary || window.innerWidth > 760 || event.clientX > 32) return;
     const target = event.target as HTMLElement;
     if (target.closest("a, button")) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
     swipeStart.current = { x: event.clientX, y: event.clientY, intent: null };
   };
 
@@ -106,6 +105,7 @@ export function Catalog() {
       }
       if (Math.abs(offsetX) < 8) return;
       swipe.intent = "horizontal";
+      if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
     }
     event.preventDefault();
     const threshold = window.innerWidth * 0.3;
@@ -121,6 +121,11 @@ export function Catalog() {
     if (!swipe || swipe.intent !== "horizontal") return;
     if (event.clientX - swipe.x >= window.innerWidth * 0.3) closeCatalog();
     else resetSwipe();
+  };
+
+  const cancelCloseSwipe = () => {
+    swipeStart.current = null;
+    resetSwipe();
   };
 
   const catalogScreen = (
@@ -141,7 +146,7 @@ export function Catalog() {
         onPointerDown={startCloseSwipe}
         onPointerMove={moveCloseSwipe}
         onPointerUp={endCloseSwipe}
-        onPointerCancel={resetSwipe}
+        onPointerCancel={cancelCloseSwipe}
         style={isOpen && swipeOffset ? { transform: `translateX(${swipeOffset}px)` } : undefined}
       >
         <div className="catalog__grain" aria-hidden="true" />
